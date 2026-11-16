@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>VocabularyCoach.App</RootNamespace>
+    <AssemblyName>VocabularyCoach</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <!-- 仅用于系统托盘 NotifyIcon，避免引入额外托盘框架 -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- WinForms + WPF 共用进程；PerMonitorV2 由 SDK 写入清单 -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WPF 与 WinForms 同时启用时移除 WinForms 隐式 using，避免 Application/MessageBox 等类型冲突 -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VocabularyCoach.Application\VocabularyCoach.Application.csproj" />
+    <ProjectReference Include="..\VocabularyCoach.Infrastructure\VocabularyCoach.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Resource Include="Resources\app.ico" />
+    <Content Include="..\..\data\seed\words.seed.json"
+             Link="Seed\words.seed.json"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

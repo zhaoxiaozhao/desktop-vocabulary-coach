@@ -1,0 +1,27 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# Test artifacts
+TestResults/
+*.trx
+coverage*.xml
+
+# Build/publish artifacts
+artifacts/
+.tools/
+
+# Local data (never commit user data or logs)
+*.db
+*.db-shm
+*.db-wal
+logs/
+
+# OS
+Thumbs.db
+desktop.ini

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desktop Vocabulary Coach — 常驻托盘的英语单词教练</title>
+  <meta name="description" content="Windows 桌面英语单词学习工具：常驻系统托盘，随机推送轻量单词卡片，支持自我评估与选择释义，自动安排复习。完全离线可用，AI 可选。" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Desktop Vocabulary Coach — 常驻托盘的英语单词教练" />
+  <meta property="og:description" content="Windows 桌面英语单词学习工具：常驻托盘、随机卡片、SM-2 复习、全局生词捕获，完全离线可用。" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">
+        <span class="logo">V</span>
+        <span>Desktop Vocabulary Coach</span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a href="#features">功能</a>
+        <a href="#screenshots">界面</a>
+        <a href="#install">安装</a>
+        <a href="#privacy">隐私</a>
+        <a href="#faq">常见问题</a>
+      </nav>
+      <a class="btn btn-small" data-download href="#install">下载</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="badge">
+            v<span data-version>0.0.0</span>
+            <span class="dot"></span>
+            Windows 10 / 11
+          </span>
+          <h1>把碎片时间<br />变成单词记忆</h1>
+          <p class="lead">
+            常驻系统托盘的英语单词教练。每隔一段时间随机弹出一张轻量卡片，
+            用「认识 / 模糊 / 不认识」或「选择释义」快速反馈，系统自动安排下一次复习。
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" data-download href="#install">下载 Windows 版</a>
+            <a class="btn btn-ghost" href="#features">了解功能</a>
+          </div>
+          <p class="meta">
+            版本 <span data-version>0.0.0</span> · <span data-size>—</span> · 自包含，无需预装 .NET
+          </p>
+          <p class="hash">
+            SHA256 <code data-sha>—</code>
+            <button class="copy" type="button" id="copy-sha">复制</button>
+          </p>
+          <p class="warning" id="download-warning" hidden>
+            下载地址尚未配置。部署前请在 <code>config.js</code> 中填写 <code>downloadUrl</code>。
+          </p>
+        </div>
+
+        <div class="hero-shot">
+          <img src="assets/app-main.png" alt="Desktop Vocabulary Coach 主窗口与本地查词" width="780" height="900" />
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="section-head">
+        <h2>为长期记忆设计，而不是打卡</h2>
+        <p>低打扰、可解释、完全本地。每一个设计都围绕「持续接触 + 主动回忆」。</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature">
+          <span class="icon">🕒</span>
+          <h3>随机而不打扰</h3>
+          <p>12–35 分钟随机间隔、每小时上限、勿扰时段；全屏、空闲、锁屏时自动安静等待。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">🧠</span>
+          <h3>SM-2 复习闭环</h3>
+          <p>认识拉长间隔，模糊短间隔，不认识尽快重学；反馈事务化落库，关闭卡片不会被误记为已掌握。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">🎯</span>
+          <h3>两种复习方式</h3>
+          <p>自我评估，或从 A–D 中选出正确释义；也可以选择 E：不认识。答对/答错直接写入复习进度。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">✨</span>
+          <h3>全局生词捕获</h3>
+          <p>在浏览器、邮件、Office 中选中单词或短语，按 Ctrl+Alt+W 加入生词本，立即进入复习队列。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">📚</span>
+          <h3>18,914 词离线词库</h3>
+          <p>内置常用英汉词库（ECDICT，MIT），含音标、难度、词频与中文释义；支持 JSON/CSV 导入。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">🤖</span>
+          <h3>AI 可选增强</h3>
+          <p>支持 OpenAI、Anthropic、Gemini、DeepSeek、Moonshot、通义千问、智谱等兼容接口；关闭时核心功能完全离线。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">🔒</span>
+          <h3>本地优先</h3>
+          <p>无需账号、不上传学习记录；SQLite 保存在本机，AI Key 使用 Windows DPAPI 加密。</p>
+        </article>
+        <article class="feature">
+          <span class="icon">🌙</span>
+          <h3>深浅主题与多屏</h3>
+          <p>浅色/深色即时切换；PerMonitorV2 DPI，卡片出现在鼠标所在屏幕的右下角。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="screenshots" class="section">
+      <div class="section-head">
+        <h2>界面</h2>
+        <p>无边框、置顶、不抢焦点。卡片会在你正在做的事旁边安静出现。</p>
+      </div>
+
+      <div class="shots">
+        <figure>
+          <img loading="lazy" src="assets/app-card.png" alt="展开的单词卡片，释义、例句与反馈按钮" />
+          <figcaption>折叠 / 展开卡片，支持发音与例句</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" src="assets/app-quiz.png" alt="选择释义模式，A–D 选项与 E：不认识" />
+          <figcaption>选择释义：A–D + E「不认识」，作答后高亮正确项</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" src="assets/app-capture.png" alt="生词捕获确认窗口" />
+          <figcaption>Ctrl+Alt+W 捕获任意应用中的单词/短语</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" src="assets/app-vocabulary.png" alt="生词本列表" />
+          <figcaption>生词本：释义、捕获次数与复习状态</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" src="assets/app-settings.png" alt="设置窗口，包含提醒节奏、主题、AI 与数据备份" />
+          <figcaption>设置：提醒节奏、勿扰时段、主题与 AI</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" src="assets/app-dark.png" alt="深色主题主窗口" />
+          <figcaption>深色主题，查词结果依然清晰</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="install" class="section">
+      <div class="section-head">
+        <h2>安装与开始</h2>
+        <p>按用户安装，无需管理员权限；学习数据保存在本地应用数据目录，升级与卸载不会误删。</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <span class="num">1</span>
+          <h3>下载安装包</h3>
+          <p>Windows 10/11 x64，约 <span data-size>—</span>。首次运行可能出现 SmartScreen 提示，选择「更多信息 → 仍要运行」。</p>
+          <a class="btn btn-primary" data-download href="#install">下载 Setup <span data-version></span></a>
+        </div>
+        <div class="step">
+          <span class="num">2</span>
+          <h3>启动并完成向导</h3>
+          <p>选择英语水平、提醒节奏与勿扰时段。应用会创建本地词库并常驻系统托盘。</p>
+        </div>
+        <div class="step">
+          <span class="num">3</span>
+          <h3>开始学习</h3>
+          <p>等待随机卡片，或从托盘选择「立即弹出一个单词」。选中任意应用中的生词，按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>W</kbd> 记录。</p>
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong>数据位置：</strong>
+        <code>%LocalAppData%\DesktopVocabularyCoach\vocabulary.db</code>
+        · 日志在 <code>logs\</code>，AI Key 在 <code>ai.key</code>（DPAPI 加密）。
+        卸载只删除程序文件与快捷方式，学习数据默认保留。
+      </div>
+    </section>
+
+    <section id="privacy" class="section split">
+      <div>
+        <h2>本地优先，隐私可控</h2>
+        <p class="muted">
+          核心学习功能完全离线。没有账号体系、没有云同步、没有行为分析脚本。
+        </p>
+      </div>
+      <ul class="checks">
+        <li>学习记录、进度、统计全部保存在本机 SQLite。</li>
+        <li>生词捕获只保存单词/短语与释义，不保存来源应用或上下文。</li>
+        <li>AI 默认关闭；启用后只发送当前单词与本地中文释义，不上传学习历史。</li>
+        <li>API Key 使用 Windows DPAPI 加密，不写入配置、数据库或日志。</li>
+        <li>不收集遥测；网站本身也没有第三方统计脚本。</li>
+      </ul>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="section-head">
+        <h2>常见问题</h2>
+      </div>
+
+      <details>
+        <summary>需要安装 .NET 运行时吗？</summary>
+        <p>不需要。安装包包含自包含的 .NET 10 运行时，支持 Windows 10/11 x64。</p>
+      </details>
+      <details>
+        <summary>为什么 Windows 提示「已保护你的电脑」？</summary>
+        <p>安装包未购买代码签名证书，SmartScreen 会对新发布者提示。可核对页面上的 SHA256 后再运行。</p>
+      </details>
+      <details>
+        <summary>AI 必须配置吗？</summary>
+        <p>不必须。AI 仅用于例句、简释与易混词提示，默认关闭；失败或断网时自动使用本地词库。</p>
+      </details>
+      <details>
+        <summary>支持哪些 Windows 版本？</summary>
+        <p>Windows 10 与 Windows 11（x64）。暂不支持 ARM64 与 Windows 7/8。</p>
+      </details>
+      <details>
+        <summary>如何备份学习数据？</summary>
+        <p>设置 → 数据 → 备份数据库；也可以直接复制 <code>%LocalAppData%\DesktopVocabularyCoach\vocabulary.db</code>。</p>
+      </details>
+      <details>
+        <summary>如何彻底卸载？</summary>
+        <p>从「设置 → 应用」卸载即可删除程序与启动项；如需清理学习数据，再手动删除 <code>%LocalAppData%\DesktopVocabularyCoach</code>。</p>
+      </details>
+    </section>
+
+    <section class="cta">
+      <h2>让下一次复习，恰好出现在合适的时候</h2>
+      <p>免费、离线、不打扰。Windows 10/11 x64。</p>
+      <a class="btn btn-primary btn-large" data-download href="#install">下载 Desktop Vocabulary Coach</a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <strong>Desktop Vocabulary Coach</strong>
+        <span>v<span data-version></span> · <span data-updated></span></span>
+      </div>
+      <div class="footer-links">
+        <a href="#features">功能</a>
+        <a href="#install">安装</a>
+        <a href="#privacy">隐私</a>
+        <a href="https://github.com/skywind3000/ECDICT" rel="noopener noreferrer" target="_blank">ECDICT 词库（MIT）</a>
+      </div>
+      <p class="fine">
+        本页面为静态站点，可部署在 Cloudflare Pages。安装包由 R2 或 GitHub Releases 提供下载。
+      </p>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
