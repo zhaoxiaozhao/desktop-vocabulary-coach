@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Adaptive;
 using VocabularyCoach.Application.Ai;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Review;
 using VocabularyCoach.Core.Entities;
 using VocabularyCoach.Core.Enums;
@@ -21,6 +22,7 @@ public sealed class WordCardService
     private readonly IReviewScheduler _reviewScheduler;
     private readonly IAdaptiveDifficultyService _adaptiveDifficulty;
     private readonly IAiEnrichmentService _aiEnrichment;
+    private readonly ILicenseService _license;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<WordCardService> _logger;
     private readonly SemaphoreSlim _singleCardGate = new(1, 1);
@@ -32,6 +34,7 @@ public sealed class WordCardService
         IReviewScheduler reviewScheduler,
         IAdaptiveDifficultyService adaptiveDifficulty,
         IAiEnrichmentService aiEnrichment,
+        ILicenseService license,
         TimeProvider timeProvider,
         ILogger<WordCardService> logger)
     {
@@ -41,6 +44,7 @@ public sealed class WordCardService
         _reviewScheduler = reviewScheduler;
         _adaptiveDifficulty = adaptiveDifficulty;
         _aiEnrichment = aiEnrichment;
+        _license = license;
         _timeProvider = timeProvider;
         _logger = logger;
     }
@@ -62,6 +66,12 @@ public sealed class WordCardService
 
         try
         {
+            if (!_license.CanUsePremiumFeatures)
+            {
+                _logger.LogInformation("试用已结束或未激活，跳过卡片展示。");
+                return null;
+            }
+
             var card = await _wordCardSource.GetNextCardAsync(cancellationToken).ConfigureAwait(false);
             if (card is null)
             {

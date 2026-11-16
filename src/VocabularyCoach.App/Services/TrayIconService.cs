@@ -1,6 +1,7 @@
 using System.Drawing;
 using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Scheduling;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Enums;
@@ -21,6 +22,7 @@ public sealed class TrayIconService : IDisposable
     private readonly WordCardService _wordCardService;
     private readonly PauseState _pauseState;
     private readonly WindowLauncher _windowLauncher;
+    private readonly ILicenseService _license;
     private readonly ISettingsService _settings;
     private readonly ILogger<TrayIconService> _logger;
 
@@ -28,12 +30,14 @@ public sealed class TrayIconService : IDisposable
         WordCardService wordCardService,
         PauseState pauseState,
         WindowLauncher windowLauncher,
+        ILicenseService license,
         ISettingsService settings,
         ILogger<TrayIconService> logger)
     {
         _wordCardService = wordCardService;
         _pauseState = pauseState;
         _windowLauncher = windowLauncher;
+        _license = license;
         _settings = settings;
         _logger = logger;
 
@@ -76,6 +80,8 @@ public sealed class TrayIconService : IDisposable
         _menu.Items.Clear();
 
         _menu.Items.Add(CreateItem("显示主窗口", (_, _) => ShowMainWindowRequested?.Invoke(this, EventArgs.Empty)));
+        _menu.Items.Add(CreateItem("激活许可证…", (_, _) => _windowLauncher.ShowLicense()));
+        _menu.Items.Add(CreateItem("检查更新…", (_, _) => _windowLauncher.ShowUpdate()));
         _menu.Items.Add(new Forms.ToolStripSeparator());
 
         var pausedUntil = _pauseState.PausedUntil;
@@ -147,6 +153,13 @@ public sealed class TrayIconService : IDisposable
 
     private async Task ShowWordNowAsync()
     {
+        if (!_license.CanUsePremiumFeatures)
+        {
+            ShowBalloon("试用已结束", "激活许可证后可继续自动弹卡。");
+            _windowLauncher.ShowLicense();
+            return;
+        }
+
         try
         {
             var result = await _wordCardService.ShowNextCardAsync(LearningSource.Manual);

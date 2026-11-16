@@ -205,6 +205,7 @@ public class PopupSchedulerServiceTests
             new Sm2ReviewScheduler(),
             new FakeAdaptiveDifficultyService(),
             new FakeAiEnrichmentService(),
+            new FakeLicenseService(),
             TimeProvider.System,
             NullLogger<WordCardService>.Instance);
 
@@ -223,6 +224,7 @@ public class PopupSchedulerServiceTests
             rateLimiter,
             pause,
             wordCardService,
+            new FakeLicenseService(),
             TimeProvider.System,
             NullLogger<PopupSchedulerService>.Instance);
 

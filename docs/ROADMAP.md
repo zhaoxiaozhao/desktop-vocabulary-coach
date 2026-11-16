@@ -237,15 +237,26 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 
 ## 11. 项目完成状态
 
-- Sprint 1–6 全部交付，当前版本 `0.8.2`。
+- Sprint 1–6 全部交付，当前版本 `0.9.0`。
 - 0.7.x 增量：卡片「选择释义」答题模式（自我评估 / 选择释义 / 混合），含 A–D 释义选项 + E：不认识。
 - 0.8.x 增量：全局热键生词捕获（单词/短语、静默加入、生词本），内置词库扩到 18,914 词。
 - 0.8.2 增量：开机自动启动（当前用户 Run 键，静默进入托盘，可设置，卸载清理）。
-- 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 R2 / GitHub Releases；
+- 0.9.0 增量：30 天全功能试用、离线 ECDSA 激活码、自动检查更新与静默升级。
+- 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 GitHub Releases + 阿里云 OSS 镜像；
   `tools/deploy-site.ps1` 校验下载地址与 SHA256 后一键部署。
-- 全解决方案 197 个自动化测试通过（Core 33 + Application 124 + Infrastructure 40）。
-- 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.8.2.exe`（自包含 win-x64）。
-- 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key）。
+- 全解决方案 211 个自动化测试通过（Core 33 + Application 137 + Infrastructure 41）。
+- 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
+- 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
+
+### 0.9.0 增量：试用、激活与自动更新
+
+- 首次启动自动开始 30 天全功能试用，无需注册；到期只暂停弹卡与生词捕获，数据保留。
+- 试用状态文件 + 注册表双写，取最早首启时间，时钟回拨超过 1 天按到期处理。
+- 激活码 `DVC1.<payload>.<signature>`：ECDSA P-256 离线验签，不绑定机器，DPAPI 保存。
+- 发码/验码与更新清单签名工具：`tools/LicenseTool`；私钥保存在仓库外。
+- 自动更新：启动 30 秒后检查、之后每 24 小时；清单验签、安装包 SHA256 校验、静默安装并重启。
+- 更新清单支持多镜像（OSS 优先、GitHub 兜底）；安装包支持 `/UPDATE` 参数自动重启应用。
+- 新增许可证、试用到期、时钟回拨、ECDSA 验签、更新清单验签与 DPAPI 存储测试。
 
 ### 0.8.x 增量：生词捕获与词库扩充
 

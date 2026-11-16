@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VocabularyCoach.Application
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VocabularyCoach.Infrastructure.Tests", "tests\VocabularyCoach.Infrastructure.Tests\VocabularyCoach.Infrastructure.Tests.csproj", "{7B9D81BD-A745-4357-A565-CB947F447F3E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{07C2787E-EAC7-C090-1BA3-A61EC2A24D84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseTool", "tools\LicenseTool\LicenseTool.csproj", "{C620BFF7-6FFA-42D9-B9CA-813B7F420859}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -115,6 +119,18 @@ Global
 		{7B9D81BD-A745-4357-A565-CB947F447F3E}.Release|x64.Build.0 = Release|Any CPU
 		{7B9D81BD-A745-4357-A565-CB947F447F3E}.Release|x86.ActiveCfg = Release|Any CPU
 		{7B9D81BD-A745-4357-A565-CB947F447F3E}.Release|x86.Build.0 = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|x64.Build.0 = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Debug|x86.Build.0 = Debug|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|x64.ActiveCfg = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|x64.Build.0 = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|x86.ActiveCfg = Release|Any CPU
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,5 +143,6 @@ Global
 		{9DDF1735-9001-4168-9368-42CC3F4000C2} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9C135C90-1AB1-46DE-B634-CF0076FE3339} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{7B9D81BD-A745-4357-A565-CB947F447F3E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{C620BFF7-6FFA-42D9-B9CA-813B7F420859} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 	EndGlobalSection
 EndGlobal

@@ -3,6 +3,7 @@ using VocabularyCoach.App.ViewModels;
 using VocabularyCoach.App.Views;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Capture;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Settings;
 
 namespace VocabularyCoach.App.Services;
@@ -16,6 +17,8 @@ public sealed class CaptureCoordinator
     private readonly IWordCaptureService _captureService;
     private readonly ISettingsService _settings;
     private readonly TrayIconService _tray;
+    private readonly ILicenseService _license;
+    private readonly WindowLauncher _windowLauncher;
     private readonly ILogger<CaptureWordViewModel> _viewModelLogger;
     private readonly ILogger<CaptureCoordinator> _logger;
 
@@ -26,6 +29,8 @@ public sealed class CaptureCoordinator
         IWordCaptureService captureService,
         ISettingsService settings,
         TrayIconService tray,
+        ILicenseService license,
+        WindowLauncher windowLauncher,
         ILogger<CaptureWordViewModel> viewModelLogger,
         ILogger<CaptureCoordinator> logger)
     {
@@ -33,6 +38,8 @@ public sealed class CaptureCoordinator
         _captureService = captureService;
         _settings = settings;
         _tray = tray;
+        _license = license;
+        _windowLauncher = windowLauncher;
         _viewModelLogger = viewModelLogger;
         _logger = logger;
     }
@@ -40,6 +47,13 @@ public sealed class CaptureCoordinator
     /// <summary>热键触发：读取当前选区并捕获。</summary>
     public async Task CaptureFromSelectionAsync()
     {
+        if (!_license.CanUsePremiumFeatures)
+        {
+            _tray.ShowInfo("试用已结束", "激活许可证后可继续记录生词。");
+            _windowLauncher.ShowLicense();
+            return;
+        }
+
         if (_window is not null)
         {
             _window.Activate();
@@ -84,6 +98,13 @@ public sealed class CaptureCoordinator
     /// <summary>托盘菜单触发：直接打开手动输入窗口。</summary>
     public void CaptureManually()
     {
+        if (!_license.CanUsePremiumFeatures)
+        {
+            _tray.ShowInfo("试用已结束", "激活许可证后可继续记录生词。");
+            _windowLauncher.ShowLicense();
+            return;
+        }
+
         ShowWindow(
             preview: null,
             hint: "请手动输入要记录的英文单词或短语（支持 1–5 个单词）。");

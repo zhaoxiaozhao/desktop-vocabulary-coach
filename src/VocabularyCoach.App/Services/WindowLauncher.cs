@@ -16,6 +16,8 @@ public sealed class WindowLauncher
     private SettingsWindow? _settingsWindow;
     private StatisticsWindow? _statisticsWindow;
     private CapturedWordsWindow? _capturedWordsWindow;
+    private LicenseWindow? _licenseWindow;
+    private UpdateWindow? _updateWindow;
 
     public WindowLauncher(IServiceProvider services, ILogger<WindowLauncher> logger)
     {
@@ -38,6 +40,42 @@ public sealed class WindowLauncher
         catch (Exception ex)
         {
             _logger.LogError(ex, "打开设置窗口失败。");
+        }
+    }
+
+    public void ShowLicense()
+    {
+        try
+        {
+            if (_licenseWindow is null)
+            {
+                _licenseWindow = _services.GetRequiredService<LicenseWindow>();
+                _licenseWindow.Closed += (_, _) => _licenseWindow = null;
+            }
+
+            ShowWindow(_licenseWindow);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "打开许可证窗口失败。");
+        }
+    }
+
+    public void ShowUpdate()
+    {
+        try
+        {
+            if (_updateWindow is null)
+            {
+                _updateWindow = _services.GetRequiredService<UpdateWindow>();
+                _updateWindow.Closed += (_, _) => _updateWindow = null;
+            }
+
+            ShowWindow(_updateWindow);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "打开更新窗口失败。");
         }
     }
 

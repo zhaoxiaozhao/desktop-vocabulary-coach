@@ -49,6 +49,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
@@ -106,6 +107,34 @@
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                Text="{Binding PauseSummary}" />
                 </StackPanel>
+
+                <Border Grid.Row="4"
+                        Margin="0,12,0,0"
+                        Padding="12,9"
+                        Background="{DynamicResource AppBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        CornerRadius="9">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   FontSize="12.5"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Text="{Binding LicenseSummary}"
+                                   TextWrapping="Wrap" />
+                        <Button Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Padding="10,4"
+                                Command="{Binding ActivateLicenseCommand}"
+                                Content="激活 / 管理"
+                                FontSize="12"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 

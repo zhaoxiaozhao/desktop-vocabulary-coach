@@ -4,11 +4,13 @@ using VocabularyCoach.Application.Adaptive;
 using VocabularyCoach.Application.Ai;
 using VocabularyCoach.Application.Capture;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Quiz;
 using VocabularyCoach.Application.Recommendation;
 using VocabularyCoach.Application.Review;
 using VocabularyCoach.Application.Scheduling;
 using VocabularyCoach.Application.Settings;
+using VocabularyCoach.Application.Updates;
 
 namespace VocabularyCoach.Application;
 
@@ -18,6 +20,9 @@ public static class ApplicationServiceCollectionExtensions
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ILicenseKeyVerifier, EcdsaLicenseKeyVerifier>();
+        services.AddSingleton<ILicenseService, LicenseService>();
+        services.AddSingleton<IAppVersion, AppVersion>();
         services.AddSingleton<PauseState>();
         services.AddSingleton<PopupRateLimiter>();
         services.AddSingleton<ISettingsService, SettingsService>();

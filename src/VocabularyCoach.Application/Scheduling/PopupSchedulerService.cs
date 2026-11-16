@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Enums;
 
@@ -26,6 +27,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
     private readonly PopupRateLimiter _rateLimiter;
     private readonly PauseState _pauseState;
     private readonly WordCardService _wordCardService;
+    private readonly ILicenseService _license;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<PopupSchedulerService> _logger;
     private readonly object _nextCheckLock = new();
@@ -46,6 +48,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
         PopupRateLimiter rateLimiter,
         PauseState pauseState,
         WordCardService wordCardService,
+        ILicenseService license,
         TimeProvider timeProvider,
         ILogger<PopupSchedulerService> logger)
     {
@@ -54,6 +57,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
         _rateLimiter = rateLimiter;
         _pauseState = pauseState;
         _wordCardService = wordCardService;
+        _license = license;
         _timeProvider = timeProvider;
         _logger = logger;
         _settings.Changed += OnSettingsChanged;
@@ -131,6 +135,14 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
 
                 if (_pauseState.IsPaused)
                 {
+                    continue;
+                }
+
+                if (!_license.CanUsePremiumFeatures)
+                {
+                    _lastSkipReason = "试用已结束，请激活许可证";
+                    _logger.LogInformation("跳过本次自动弹卡：试用已结束，请激活许可证。");
+                    pendingDelay = TimeSpan.FromMinutes(30);
                     continue;
                 }
 

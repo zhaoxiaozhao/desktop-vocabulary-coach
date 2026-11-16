@@ -5,7 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Scheduling;
+using VocabularyCoach.App.Services;
 using VocabularyCoach.Core.Entities;
 using VocabularyCoach.Core.Enums;
 using VocabularyCoach.Infrastructure.Diagnostics;
@@ -20,6 +22,8 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IWordLibrary _wordLibrary;
     private readonly IWordLibraryImporter _importer;
     private readonly ISchedulerStatus _schedulerStatus;
+    private readonly ILicenseService _license;
+    private readonly WindowLauncher _windowLauncher;
     private readonly ILogger<MainViewModel> _logger;
 
     public MainViewModel(
@@ -28,6 +32,8 @@ public sealed partial class MainViewModel : ObservableObject
         IWordLibrary wordLibrary,
         IWordLibraryImporter importer,
         ISchedulerStatus schedulerStatus,
+        ILicenseService license,
+        WindowLauncher windowLauncher,
         ILogger<MainViewModel> logger)
     {
         _wordCardService = wordCardService;
@@ -35,14 +41,36 @@ public sealed partial class MainViewModel : ObservableObject
         _wordLibrary = wordLibrary;
         _importer = importer;
         _schedulerStatus = schedulerStatus;
+        _license = license;
+        _windowLauncher = windowLauncher;
         _logger = logger;
+        _license.Changed += OnLicenseChanged;
         RefreshState();
     }
 
     public string AppVersion =>
-        typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.2.0";
+        typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.9.0";
 
-    public string VersionSummary => $"版本 {AppVersion} · Sprint 6";
+    public string VersionSummary => $"版本 {AppVersion}";
+
+    public string LicenseSummary
+    {
+        get
+        {
+            var snapshot = _license.Current;
+            return snapshot.Status switch
+            {
+                LicenseStatus.Licensed => snapshot.Edition == "lifetime"
+                    ? "已激活 · 终身版"
+                    : $"已激活 · {snapshot.Edition}",
+                LicenseStatus.Trial =>
+                    $"免费试用 · 剩余 {snapshot.DaysRemaining} 天（至 {snapshot.TrialEndsAt:yyyy-MM-dd}）",
+                _ => "试用已结束 · 激活后可继续自动弹卡与记录生词",
+            };
+        }
+    }
+
+    public bool IsLicenseExpired => _license.Current.Status == LicenseStatus.TrialExpired;
 
     public string DataDirectory => AppPaths.RootDirectory;
 
@@ -121,7 +149,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    private bool CanShowCard() => !IsBusy;
+    private bool CanShowCard() => !IsBusy && _license.CanUsePremiumFeatures;
 
     partial void OnIsBusyChanged(bool value) => ShowCardCommand.NotifyCanExecuteChanged();
 
@@ -222,6 +250,28 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenLogFolder() => OpenFolder(LogDirectory);
 
+    [RelayCommand]
+    private void ActivateLicense() => _windowLauncher.ShowLicense();
+
+    private void OnLicenseChanged(object? sender, EventArgs e)
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher is not null && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(RefreshLicenseState);
+            return;
+        }
+
+        RefreshLicenseState();
+    }
+
+    private void RefreshLicenseState()
+    {
+        OnPropertyChanged(nameof(LicenseSummary));
+        OnPropertyChanged(nameof(IsLicenseExpired));
+        ShowCardCommand.NotifyCanExecuteChanged();
+    }
+
     public string LogDirectory => AppPaths.LogDirectory;
 
     /// <summary>刷新暂停状态等易变信息（窗口激活或状态计时器触发时调用）。</summary>
@@ -232,6 +282,9 @@ public sealed partial class MainViewModel : ObservableObject
             : "提醒未暂停";
 
         OnPropertyChanged(nameof(SchedulerSummary));
+        OnPropertyChanged(nameof(LicenseSummary));
+        OnPropertyChanged(nameof(IsLicenseExpired));
+        ShowCardCommand.NotifyCanExecuteChanged();
     }
 
     private void OpenFolder(string path)

@@ -15,6 +15,7 @@ coverage*.xml
 # Build/publish artifacts
 artifacts/
 .tools/
+.dvc/
 
 # Local data (never commit user data or logs)
 *.db

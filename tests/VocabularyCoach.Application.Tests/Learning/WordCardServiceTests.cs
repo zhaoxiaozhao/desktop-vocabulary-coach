@@ -196,11 +196,32 @@ public class WordCardServiceTests
         Assert.Null(queued.Enrichment);
     }
 
+    [Fact]
+    public async Task ShowNextCard_WhenLicenseExpired_ReturnsNullWithoutPresenter()
+    {
+        var license = new FakeLicenseService();
+        license.Expire();
+
+        var presenter = new FakePopupPresenter(
+            (_, _) => Task.FromResult(WordCardResult.Recognized));
+
+        var service = CreateService(
+            new FakeWordCardSource(CardWithId(42)),
+            presenter,
+            license: license);
+
+        var result = await service.ShowNextCardAsync();
+
+        Assert.Null(result);
+        Assert.Equal(0, presenter.ShowCallCount);
+    }
+
     private static WordCardService CreateService(
         IWordCardSource source,
         IWordPopupPresenter presenter,
         RecordingLearningStore? store = null,
-        FakeAiEnrichmentService? ai = null) =>
+        FakeAiEnrichmentService? ai = null,
+        FakeLicenseService? license = null) =>
         new(
             source,
             presenter,
@@ -208,6 +229,7 @@ public class WordCardServiceTests
             new Sm2ReviewScheduler(),
             new FakeAdaptiveDifficultyService(),
             ai ?? new FakeAiEnrichmentService(),
+            license ?? new FakeLicenseService(),
             TimeProvider.System,
             NullLogger<WordCardService>.Instance);
 

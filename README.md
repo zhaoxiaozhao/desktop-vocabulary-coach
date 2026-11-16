@@ -3,7 +3,7 @@
 常驻 Windows 系统托盘的英语单词学习工具：在合适的时机随机弹出一张轻量浮动单词卡片，
 用户用「认识 / 模糊 / 不认识」快速反馈，系统据此安排后续复习。核心学习功能以离线为主。
 
-- 当前版本：`0.8.2`
+- 当前版本：`0.9.0`
 - 目标平台：Windows 10 / 11 x64
 - 技术栈：.NET 10 + WPF + EF Core + SQLite + Generic Host + CommunityToolkit.Mvvm
 - 代码仓库：[github.com/zhaoxiaozhao/desktop-vocabulary-coach](https://github.com/zhaoxiaozhao/desktop-vocabulary-coach)
@@ -116,7 +116,7 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 详细说明（R2 上传、自定义域名、中国大陆访问注意事项）见 [site/README.md](site/README.md)。
 
-## 已实现功能（Sprint 1–6 + 0.7.x / 0.8.x 增量）
+## 已实现功能（Sprint 1–6 + 0.7.x / 0.8.x / 0.9.x 增量）
 
 - **解决方案骨架**：`Core → Application → Infrastructure → App` 分层；`Core` 不引用 WPF/EF Core。
 - **Generic Host + DI + 配置 + 日志**：后台服务随宿主启动/停止；支持 `CancellationToken`；
@@ -195,17 +195,28 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
   - 设置 → 提醒 → 「开机自动启动（静默进入系统托盘）」。
   - 通过当前用户注册表 `HKCU\...\Run` 注册，无需管理员权限；命令行带 `--startup`，启动时不显示主窗口。
   - 关闭开关立即删除启动项；程序升级/移动路径时会在下次启动自动修正路径；卸载安装包会清理启动项。
+- **30 天试用与离线激活（0.9.0 增量）**：
+  - 首次启动自动开始 30 天全功能试用，无需注册；主窗口显示剩余天数。
+  - 到期后仅暂停自动弹卡、手动弹卡与生词捕获；查词、备份、导出与全部学习数据保留。
+  - 试用状态同时写入 `trial.json` 与当前用户注册表，取最早首启时间；时钟回拨超过 1 天按到期处理。
+  - 激活码使用 ECDSA P-256 离线验签，不联网、不绑定机器；激活后 DPAPI 加密保存到 `license.dat`。
+  - 私钥与发码工具见 [docs/licensing-and-updates.md](docs/licensing-and-updates.md)。
+- **自动更新（0.9.0 增量）**：
+  - 启动 30 秒后检查一次，之后每 24 小时检查；托盘「检查更新…」可手动检查。
+  - 更新清单使用同一把离线密钥签名；安装包下载后校验 SHA256，再静默安装并自动重启。
+  - 清单地址支持多个镜像（阿里云 OSS 优先、GitHub 兜底）。
+  - 更新清单与发版流程见 [docs/licensing-and-updates.md](docs/licensing-and-updates.md)。
 - **发音**：系统 TTS（`System.Speech`），不可用时自动禁用按钮并降级。
 - **稳定性**：单实例保护、未处理异常落盘、按天滚动日志、退出时先停止宿主再释放资源。
 
 ## 实际验收结果
 
-本轮实际执行结果（2026-11-14）：
+本轮实际执行结果（2026-11-16）：
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 197 passed
-  Core 33 + Application 124 + Infrastructure 40
+dotnet test  VocabularyCoach.sln   → 211 passed
+  Core 33 + Application 137 + Infrastructure 41
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：
@@ -265,7 +276,8 @@ AI：Mock Provider 离线生成并写入缓存；OpenAI-compatible 请求路径/
 DPAPI：保存 Key 后文件不含明文；读取往返一致；删除后读取为 null
 AI 缓存：同一单词重复保存只保留一行，内容更新生效
 首次启动：向导保存水平/节奏/勿扰并标记已完成，重启不再显示
-安装包：成功编译 DesktopVocabularyCoach-Setup-0.8.2.exe（约 56 MB）；
+安装包：成功编译 DesktopVocabularyCoach-Setup-0.9.0.exe（约 56 MB）；
+        `/UPDATE` 静默升级 → 自动重启 0.9.0，学习数据保留。
         静默安装 → 启动 → 静默卸载：安装目录删除，%LocalAppData% 学习数据保留
 DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定位（单屏自动化验证，混合 DPI 待人工验收）
 ```
@@ -421,6 +433,16 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
     注销/重启后应用应自动运行在托盘，不显示主窗口。取消勾选后重启不应再自启；
     可用注册表编辑器检查 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
     下的 `DesktopVocabularyCoach` 值是否随开关出现/消失。
+28. **30 天试用**：首次启动后主窗口「运行状态」应显示「免费试用 · 剩余 30 天」；
+    `%LocalAppData%\DesktopVocabularyCoach\trial.json` 与 `HKCU\Software\DesktopVocabularyCoach`
+    应出现首启时间。把系统时间调到 31 天后重启，自动弹卡与生词捕获应停用，
+    查词/备份/学习数据仍可用，主窗口提示试用结束。
+29. **激活码**：托盘「激活许可证…」→ 粘贴测试激活码 → 激活成功；
+    主窗口变为「已激活 · 终身版」，`license.dat` 生成且不含明文；
+    重启后仍为已激活，换一台电脑重新粘贴同一个码也能激活。
+30. **自动更新**：把 `updates/latest.json` 的版本号改成更高版本并指向一个真实安装包，
+    启动 30 秒后托盘出现新版本提示；打开「检查更新…」→「下载并安装」，
+    SHA256 校验通过后安装程序静默升级并自动重启。
 
 ## 目录结构
 
@@ -477,6 +499,7 @@ tools/
   SeedBuilder/                          从 ECDICT CSV 生成种子词库
   get-innosetup.ps1                     从 NuGet 获取 Inno Setup 编译器
   make-icon.ps1                         应用图标生成脚本
+  LicenseTool/                          离线许可证与更新清单签名工具
   update-site-config.ps1                从安装包更新站点的版本/大小/SHA256/下载地址
   deploy-site.ps1                       校验配置并部署 site/ 到 Cloudflare Pages
 site/

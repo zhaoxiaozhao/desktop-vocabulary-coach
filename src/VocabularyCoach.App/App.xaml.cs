@@ -5,13 +5,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using VocabularyCoach.App.Services;
 using VocabularyCoach.App.ViewModels;
 using VocabularyCoach.App.Views;
 using VocabularyCoach.Application;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Settings;
+using VocabularyCoach.Application.Updates;
 using VocabularyCoach.Core.Enums;
 using VocabularyCoach.Infrastructure;
 using VocabularyCoach.Infrastructure.Dictionary;
@@ -88,6 +91,9 @@ public partial class App : System.Windows.Application
             _settingsService = settingsService;
             await settingsService.LoadAsync(CancellationToken.None);
             _host.Services.GetRequiredService<ThemeService>().Apply(settingsService.Current.Theme);
+
+            var licenseService = _host.Services.GetRequiredService<ILicenseService>();
+            await licenseService.InitializeAsync(CancellationToken.None);
             _logger.LogInformation(
                 "用户设置已加载：提醒 {Enabled}，主题 {Theme}，推荐模式 {Mode}。",
                 settingsService.Current.RemindersEnabled,
@@ -151,6 +157,8 @@ public partial class App : System.Windows.Application
             _hotkey.Pressed += OnHotkeyPressed;
             settingsService.Changed += OnSettingsChanged;
             UpdateHotkeyRegistration();
+
+            _ = RunUpdateChecksAsync();
         }
         catch (Exception ex)
         {
@@ -224,6 +232,10 @@ public partial class App : System.Windows.Application
         builder.Services.AddTransient<FirstRunWindow>();
         builder.Services.AddTransient<CapturedWordsViewModel>();
         builder.Services.AddTransient<CapturedWordsWindow>();
+        builder.Services.AddTransient<LicenseViewModel>();
+        builder.Services.AddTransient<LicenseWindow>();
+        builder.Services.AddTransient<UpdateViewModel>();
+        builder.Services.AddTransient<UpdateWindow>();
 
         return builder.Build();
     }
@@ -241,6 +253,54 @@ public partial class App : System.Windows.Application
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e) => UpdateHotkeyRegistration();
+
+    /// <summary>启动后延迟检查更新，之后按配置间隔重复；发现新版本只提示，不强制安装。</summary>
+    private async Task RunUpdateChecksAsync()
+    {
+        if (_host is null)
+        {
+            return;
+        }
+
+        var options = _host.Services.GetRequiredService<IOptions<UpdateOptions>>().Value;
+        var updateService = _host.Services.GetRequiredService<IUpdateService>();
+
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(Math.Max(1, options.CheckDelaySeconds)));
+        }
+        catch
+        {
+            return;
+        }
+
+        while (!IsShuttingDown)
+        {
+            try
+            {
+                var result = await updateService.CheckAsync();
+                if (result.UpdateAvailable && result.Manifest is { } manifest)
+                {
+                    Dispatcher.Invoke(() => _trayIcon?.ShowInfo(
+                        "发现新版本",
+                        $"{manifest.Version} 已发布，可在托盘菜单「检查更新…」中查看。"));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "后台检查更新失败。");
+            }
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromHours(Math.Max(1, options.CheckIntervalHours)));
+            }
+            catch
+            {
+                return;
+            }
+        }
+    }
 
     private void UpdateHotkeyRegistration()
     {

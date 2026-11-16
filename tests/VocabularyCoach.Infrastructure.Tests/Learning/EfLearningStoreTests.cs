@@ -209,6 +209,7 @@ public class EfLearningStoreTests
             new Sm2ReviewScheduler(),
             new NoopAdaptiveDifficultyService(),
             new NoopAiEnrichmentService(),
+            new FakeLicenseService(),
             TimeProvider.System,
             NullLogger<WordCardService>.Instance);
     }

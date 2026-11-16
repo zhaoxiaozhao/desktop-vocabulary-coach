@@ -29,6 +29,7 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 SetupIconFile=..\src\VocabularyCoach.App\Resources\app.ico
 CloseApplications=yes
 CloseApplicationsFilter=VocabularyCoach.exe
+RestartApplications=no
 
 [Languages]
 Name: "chinesesimp"; MessagesFile: "languages\ChineseSimplified.isl"
@@ -47,8 +48,24 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "启动 {#MyAppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait; Check: IsUpdateInstall
 
 [Code]
+function IsUpdateInstall: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(I), '/UPDATE') = 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then

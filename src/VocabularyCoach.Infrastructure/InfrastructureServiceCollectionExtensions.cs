@@ -7,16 +7,20 @@ using VocabularyCoach.Application.Ai;
 using VocabularyCoach.Application.Backup;
 using VocabularyCoach.Application.Capture;
 using VocabularyCoach.Application.Learning;
+using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Application.Statistics;
+using VocabularyCoach.Application.Updates;
 using VocabularyCoach.Infrastructure.Ai;
 using VocabularyCoach.Infrastructure.Audio;
 using VocabularyCoach.Infrastructure.Dictionary;
 using VocabularyCoach.Infrastructure.Diagnostics;
+using VocabularyCoach.Infrastructure.Licensing;
 using VocabularyCoach.Infrastructure.Persistence;
 using VocabularyCoach.Infrastructure.Repositories;
 using VocabularyCoach.Infrastructure.Statistics;
 using VocabularyCoach.Infrastructure.SystemIntegration;
+using VocabularyCoach.Infrastructure.Updates;
 
 namespace VocabularyCoach.Infrastructure;
 
@@ -56,6 +60,13 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IAudioPronouncer, SystemSpeechPronouncer>();
         services.AddSingleton<ISystemStateMonitor, WindowsSystemStateMonitor>();
         services.AddSingleton<ISystemStartupManager>(_ => new WindowsStartupManager());
+        services.AddSingleton<ILicenseStore>(sp => new DpapiLicenseStore(
+            Path.Combine(AppPaths.RootDirectory, "license.dat"),
+            sp.GetRequiredService<ILogger<DpapiLicenseStore>>()));
+        services.AddSingleton<ITrialStateStore>(_ => new WindowsTrialStateStore(
+            Path.Combine(AppPaths.RootDirectory, "trial.json")));
+        services.Configure<UpdateOptions>(configuration.GetSection(UpdateOptions.SectionName));
+        services.AddSingleton<IUpdateService, HttpUpdateService>();
 
         return services;
     }
