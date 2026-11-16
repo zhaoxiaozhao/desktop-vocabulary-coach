@@ -2,6 +2,19 @@
 
 纯静态站点：无构建步骤、无第三方脚本、无外链字体。直接部署 `site/` 目录即可。
 
+## 本项目的发布方式
+
+- 代码与安装包：GitHub 公开仓库 + Releases（安装包作为 Release 资产）。
+- 网站：Cloudflare Pages 默认域名 `https://<project>.pages.dev`，不绑定自定义域名。
+- 下载地址格式：
+
+```text
+https://github.com/<owner>/<repo>/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe
+```
+
+> 中国大陆访问 GitHub Releases 可能较慢或被阻断。面向大陆买家销售时，建议同时把安装包
+> 上传到蓝奏云 / 123 云盘 / 百度网盘作为交付镜像，GitHub 仅作为公开下载与校验入口。
+
 ## 先配置下载地址
 
 编辑 `site/config.js`：
