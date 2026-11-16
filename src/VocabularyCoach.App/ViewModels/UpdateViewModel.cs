@@ -84,8 +84,11 @@ public sealed partial class UpdateViewModel : ObservableObject
             }
             else
             {
-                StatusText = "当前已是最新版本";
-                NotesText = string.Empty;
+                StatusText = result.Manifest is null ? "检查更新失败" : "当前已是最新版本";
+                NotesText = result.Manifest is null
+                    ? string.Empty
+                    : "你正在使用最新版本。" + Environment.NewLine
+                      + "应用会在后台每 24 小时自动检查一次更新，也可以在托盘菜单中手动检查。";
                 _manifest = null;
                 CanInstall = false;
                 Message = result.Manifest is null ? result.Message : string.Empty;
