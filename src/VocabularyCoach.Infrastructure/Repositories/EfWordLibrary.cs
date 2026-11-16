@@ -124,6 +124,7 @@ public sealed class EfWordLibrary : IWordLibrary
     public async Task<IReadOnlyList<string>> GetDistractorWordsAsync(
         int excludeWordId,
         string correctDefinition,
+        int preferredLength,
         int count,
         int preferredDifficulty,
         CancellationToken cancellationToken = default)
@@ -142,6 +143,7 @@ public sealed class EfWordLibrary : IWordLibrary
                         !db.WordDefinitions.Any(d =>
                             d.WordId == x.Id && d.DefinitionZh == correctDefinition))
             .OrderBy(x => x.Difficulty == preferredDifficulty ? 0 : 1)
+            .ThenBy(x => Math.Abs(x.Word.Length - preferredLength))
             .ThenBy(x => EF.Functions.Random())
             .Select(x => x.Word)
             .Take(Math.Max(count * 8, count))

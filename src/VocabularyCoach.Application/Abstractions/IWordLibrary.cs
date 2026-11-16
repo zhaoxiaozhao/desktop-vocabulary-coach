@@ -36,6 +36,7 @@ public interface IWordLibrary
     Task<IReadOnlyList<string>> GetDistractorWordsAsync(
         int excludeWordId,
         string correctDefinition,
+        int preferredLength,
         int count,
         int preferredDifficulty,
         CancellationToken cancellationToken = default);

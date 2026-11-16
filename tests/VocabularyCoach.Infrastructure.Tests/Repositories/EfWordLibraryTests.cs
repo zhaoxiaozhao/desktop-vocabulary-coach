@@ -128,6 +128,7 @@ public class EfWordLibraryTests
         var words = await library.GetDistractorWordsAsync(
             targetId,
             "有韧性的",
+            "resilient".Length,
             3,
             1,
             CancellationToken.None);

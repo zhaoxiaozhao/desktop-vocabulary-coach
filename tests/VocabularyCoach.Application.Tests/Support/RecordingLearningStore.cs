@@ -93,6 +93,7 @@ internal sealed class FakeWordLibrary : VocabularyCoach.Application.Abstractions
     public Task<IReadOnlyList<string>> GetDistractorWordsAsync(
         int excludeWordId,
         string correctDefinition,
+        int preferredLength,
         int count,
         int preferredDifficulty,
         CancellationToken cancellationToken = default) =>

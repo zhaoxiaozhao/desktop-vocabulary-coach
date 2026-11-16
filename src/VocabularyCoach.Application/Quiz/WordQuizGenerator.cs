@@ -100,6 +100,7 @@ public sealed class WordQuizGenerator : IWordQuizGenerator
             .GetDistractorWordsAsync(
                 card.Id,
                 correctDefinition,
+                correctWord.Length,
                 MaxDistractors + 2,
                 card.Difficulty,
                 cancellationToken)
