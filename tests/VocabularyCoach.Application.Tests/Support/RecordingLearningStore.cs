@@ -68,6 +68,8 @@ internal sealed class FakeWordLibrary : VocabularyCoach.Application.Abstractions
 
     public IReadOnlyList<string> Distractors { get; set; } = [];
 
+    public IReadOnlyList<string> DistractorWords { get; set; } = [];
+
     public Task<WordCard?> FindByWordAsync(string word, CancellationToken cancellationToken = default) =>
         Task.FromResult(FoundWord);
 
@@ -87,4 +89,12 @@ internal sealed class FakeWordLibrary : VocabularyCoach.Application.Abstractions
         int preferredDifficulty,
         CancellationToken cancellationToken = default) =>
         Task.FromResult(Distractors);
+
+    public Task<IReadOnlyList<string>> GetDistractorWordsAsync(
+        int excludeWordId,
+        string correctDefinition,
+        int count,
+        int preferredDifficulty,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(DistractorWords);
 }

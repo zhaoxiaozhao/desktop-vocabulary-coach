@@ -28,4 +28,15 @@ public interface IWordLibrary
         int count,
         int preferredDifficulty,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 取若干其他单词的英文原文，用于「看义选词」反向选择题的干扰项。
+    /// 会排除中文释义与正确释义完全相同的单词，避免出现多个正确答案。
+    /// </summary>
+    Task<IReadOnlyList<string>> GetDistractorWordsAsync(
+        int excludeWordId,
+        string correctDefinition,
+        int count,
+        int preferredDifficulty,
+        CancellationToken cancellationToken = default);
 }

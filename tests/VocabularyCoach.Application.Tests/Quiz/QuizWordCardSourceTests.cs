@@ -34,6 +34,23 @@ public class QuizWordCardSourceTests
         Assert.NotNull(card);
         Assert.Same(quiz, card!.Quiz);
         Assert.Equal(1, generator.CallCount);
+        Assert.Equal(QuizDirection.WordToDefinition, generator.LastDirection);
+    }
+
+    [Fact]
+    public async Task ReverseQuizMode_RequestsReverseDirection()
+    {
+        var quiz = SampleQuiz(QuizDirection.DefinitionToWord);
+        var generator = new FakeQuizGenerator { Quiz = quiz };
+        var source = CreateSource(InteractionMode.ReverseQuiz, generator);
+
+        var card = await source.GetNextCardAsync(CancellationToken.None);
+
+        Assert.NotNull(card);
+        Assert.Same(quiz, card!.Quiz);
+        Assert.True(card.Quiz!.IsReverse);
+        Assert.Equal(1, generator.CallCount);
+        Assert.Equal(QuizDirection.DefinitionToWord, generator.LastDirection);
     }
 
     [Fact]
@@ -94,13 +111,15 @@ public class QuizWordCardSourceTests
             new FakeTimeProvider(new DateTimeOffset(2026, 11, 14, 12, 0, 0, TimeSpan.Zero)),
             NullLogger<WordRecommendationService>.Instance);
 
-    private static WordQuiz SampleQuiz() => new(
+    private static WordQuiz SampleQuiz(
+        QuizDirection direction = QuizDirection.WordToDefinition) => new(
     [
-        new WordChoice("有韧性的", true),
-        new WordChoice("模棱两可的", false),
-        new WordChoice("势头的", false),
-        new WordChoice("感激的", false),
-    ]);
+        new WordChoice(direction == QuizDirection.DefinitionToWord ? "resilient" : "有韧性的", true),
+        new WordChoice(direction == QuizDirection.DefinitionToWord ? "ambiguous" : "模棱两可的", false),
+        new WordChoice(direction == QuizDirection.DefinitionToWord ? "momentum" : "势头的", false),
+        new WordChoice(direction == QuizDirection.DefinitionToWord ? "grateful" : "感激的", false),
+    ],
+    direction);
 
     private sealed class FakeQuizGenerator : IWordQuizGenerator
     {
@@ -108,9 +127,18 @@ public class QuizWordCardSourceTests
 
         public int CallCount { get; private set; }
 
-        public Task<WordQuiz?> TryCreateAsync(WordCard card, CancellationToken cancellationToken)
+        public QuizDirection? LastDirection { get; private set; }
+
+        public Task<WordQuiz?> TryCreateAsync(WordCard card, CancellationToken cancellationToken) =>
+            TryCreateAsync(card, QuizDirection.WordToDefinition, cancellationToken);
+
+        public Task<WordQuiz?> TryCreateAsync(
+            WordCard card,
+            QuizDirection direction,
+            CancellationToken cancellationToken)
         {
             CallCount++;
+            LastDirection = direction;
             return Task.FromResult(Quiz);
         }
     }

@@ -6,10 +6,22 @@ using VocabularyCoach.Core.Entities;
 
 namespace VocabularyCoach.Application.Quiz;
 
-/// <summary>为单词卡片生成“选择正确释义”的题目。</summary>
+/// <summary>为单词卡片生成选择题（看词选义或看义选词）。</summary>
 public interface IWordQuizGenerator
 {
+    /// <summary>生成「看词选义」题目（兼容旧调用）。</summary>
     Task<WordQuiz?> TryCreateAsync(WordCard card, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 按方向生成题目。默认实现只支持正向；反向由具体实现覆盖。
+    /// </summary>
+    Task<WordQuiz?> TryCreateAsync(
+        WordCard card,
+        QuizDirection direction,
+        CancellationToken cancellationToken) =>
+        direction == QuizDirection.WordToDefinition
+            ? TryCreateAsync(card, cancellationToken)
+            : Task.FromResult<WordQuiz?>(null);
 }
 
 public sealed class WordQuizGenerator : IWordQuizGenerator
@@ -23,7 +35,20 @@ public sealed class WordQuizGenerator : IWordQuizGenerator
         _wordLibrary = wordLibrary;
     }
 
-    public async Task<WordQuiz?> TryCreateAsync(WordCard card, CancellationToken cancellationToken)
+    public Task<WordQuiz?> TryCreateAsync(WordCard card, CancellationToken cancellationToken) =>
+        TryCreateAsync(card, QuizDirection.WordToDefinition, cancellationToken);
+
+    public Task<WordQuiz?> TryCreateAsync(
+        WordCard card,
+        QuizDirection direction,
+        CancellationToken cancellationToken) =>
+        direction == QuizDirection.DefinitionToWord
+            ? CreateReverseAsync(card, cancellationToken)
+            : CreateForwardAsync(card, cancellationToken);
+
+    private async Task<WordQuiz?> CreateForwardAsync(
+        WordCard card,
+        CancellationToken cancellationToken)
     {
         var correctDefinition = card.PrimaryDefinition?.DefinitionZh;
         if (string.IsNullOrWhiteSpace(correctDefinition) || card.Id <= 0)
@@ -53,12 +78,59 @@ public sealed class WordQuizGenerator : IWordQuizGenerator
 
         choices.AddRange(uniqueDistractors.Select(x => new WordChoice(x, IsCorrect: false)));
 
-        return new WordQuiz(choices.OrderBy(_ => Random.Shared.Next()).ToList());
+        return new WordQuiz(
+            choices.OrderBy(_ => Random.Shared.Next()).ToList(),
+            QuizDirection.WordToDefinition);
+    }
+
+    private async Task<WordQuiz?> CreateReverseAsync(
+        WordCard card,
+        CancellationToken cancellationToken)
+    {
+        var correctWord = card.Word;
+        var correctDefinition = card.PrimaryDefinition?.DefinitionZh;
+        if (string.IsNullOrWhiteSpace(correctWord)
+            || string.IsNullOrWhiteSpace(correctDefinition)
+            || card.Id <= 0)
+        {
+            return null;
+        }
+
+        var distractors = await _wordLibrary
+            .GetDistractorWordsAsync(
+                card.Id,
+                correctDefinition,
+                MaxDistractors + 2,
+                card.Difficulty,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        var uniqueDistractors = distractors
+            .Where(x => !string.Equals(x, correctWord, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(MaxDistractors)
+            .ToList();
+
+        if (uniqueDistractors.Count < MaxDistractors)
+        {
+            return null;
+        }
+
+        var choices = new List<WordChoice>(uniqueDistractors.Count + 1)
+        {
+            new(correctWord, IsCorrect: true),
+        };
+
+        choices.AddRange(uniqueDistractors.Select(x => new WordChoice(x, IsCorrect: false)));
+
+        return new WordQuiz(
+            choices.OrderBy(_ => Random.Shared.Next()).ToList(),
+            QuizDirection.DefinitionToWord);
     }
 }
 
 /// <summary>
-/// 根据设置给推荐结果附加答题题目。选择释义不可用时自动回退到自我评估，
+/// 根据用户设置给推荐结果附加选择题；题目生成失败时自动回退到自我评估，
 /// 不影响任何核心学习流程。
 /// </summary>
 public sealed class QuizWordCardSource : IWordCardSource
@@ -89,9 +161,11 @@ public sealed class QuizWordCardSource : IWordCardSource
         }
 
         var mode = _settings.Current.InteractionMode;
+
+        // 混合模式：一半自我评估，一半选择题；选择题内部再随机正/反。
         var useQuiz = mode switch
         {
-            InteractionMode.ChoiceQuiz => true,
+            InteractionMode.ChoiceQuiz or InteractionMode.ReverseQuiz => true,
             InteractionMode.Mixed => Random.Shared.NextDouble() < 0.5,
             _ => false,
         };
@@ -101,14 +175,34 @@ public sealed class QuizWordCardSource : IWordCardSource
             return card;
         }
 
-        var quiz = await _quizGenerator.TryCreateAsync(card, cancellationToken).ConfigureAwait(false);
+        var direction = mode switch
+        {
+            InteractionMode.ReverseQuiz => QuizDirection.DefinitionToWord,
+            InteractionMode.ChoiceQuiz => QuizDirection.WordToDefinition,
+            _ => Random.Shared.NextDouble() < 0.5
+                ? QuizDirection.WordToDefinition
+                : QuizDirection.DefinitionToWord,
+        };
+
+        var quiz = await _quizGenerator
+            .TryCreateAsync(card, direction, cancellationToken)
+            .ConfigureAwait(false);
+
         if (quiz is null)
         {
-            _logger.LogDebug("无法为 {Word} 生成选择题，回退到自我评估。", card.Word);
+            _logger.LogDebug(
+                "无法为 {Word} 生成 {Direction} 选择题，回退到自我评估。",
+                card.Word,
+                direction);
             return card;
         }
 
-        _logger.LogInformation("选择释义模式：{Word}（{Count} 个选项）。", card.Word, quiz.Choices.Count);
+        _logger.LogInformation(
+            "选择题模式（{Direction}）：{Word}（{Count} 个选项）。",
+            direction,
+            card.Word,
+            quiz.Choices.Count);
+
         return card with { Quiz = quiz };
     }
 }

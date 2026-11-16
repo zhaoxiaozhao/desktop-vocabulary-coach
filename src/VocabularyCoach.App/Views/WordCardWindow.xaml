@@ -56,11 +56,24 @@
 
                 <TextBlock Grid.Column="0"
                            VerticalAlignment="Center"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Text="{Binding Word}"
-                           TextTrimming="CharacterEllipsis"
-                           ToolTip="{Binding Word}" />
+                           Text="{Binding HeaderText}"
+                           TextWrapping="Wrap"
+                           ToolTip="{Binding HeaderText}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="26" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReverseQuiz}" Value="True">
+                                    <Setter Property="FontSize" Value="18" />
+                                    <Setter Property="LineHeight" Value="27" />
+                                    <Setter Property="TextTrimming" Value="None" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <Button Grid.Column="1"
                         Margin="8,0,0,0"
@@ -224,7 +237,7 @@
                 <StackPanel Visibility="{Binding IsQuiz, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock FontSize="13"
                                Foreground="{DynamicResource TextSecondaryBrush}"
-                               Text="选择正确的中文释义" />
+                               Text="{Binding QuizPrompt}" />
 
                     <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding QuizChoices}">
                         <ItemsControl.ItemTemplate>

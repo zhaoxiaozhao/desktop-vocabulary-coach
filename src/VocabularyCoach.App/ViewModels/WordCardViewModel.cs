@@ -60,7 +60,7 @@ public sealed partial class WordCardViewModel : ObservableObject
     {
         var choices = quiz.Choices
             .Select((choice, index) => new QuizChoiceViewModel(
-                choice.DefinitionZh,
+                choice.Text,
                 choice.IsCorrect,
                 ((char)('A' + index)).ToString()))
             .ToList();
@@ -112,7 +112,18 @@ public sealed partial class WordCardViewModel : ObservableObject
 
     public bool HasAiNotes => HasAiExplanation || HasConfusableNote;
 
-    /// <summary>是否为选择释义模式。</summary>
+    /// <summary>是否为「看义选词」反向模式。</summary>
+    public bool IsReverseQuiz => _card.Quiz?.Direction == QuizDirection.DefinitionToWord;
+
+    /// <summary>卡片标题：正向显示英文；反向在作答前显示中文释义。</summary>
+    public string HeaderText => IsReverseQuiz && !IsAnswered ? DefinitionZh : Word;
+
+    /// <summary>选择题提示语。</summary>
+    public string QuizPrompt => IsReverseQuiz
+        ? "选择正确的英文单词"
+        : "选择正确的中文释义";
+
+    /// <summary>是否为选择题模式。</summary>
     public bool IsQuiz => _card.Quiz is not null;
 
     public IReadOnlyList<QuizChoiceViewModel> QuizChoices { get; }
@@ -123,15 +134,16 @@ public sealed partial class WordCardViewModel : ObservableObject
     public string CorrectDefinition => _card.PrimaryDefinition?.DefinitionZh ?? string.Empty;
 
     public string AnswerBanner => IsUnknownSelected
-        ? "已标记为不认识，正确释义如下。"
+        ? "已标记为不认识，正确答案如下。"
         : LastAnswerCorrect
             ? "回答正确，下次复习间隔会拉长。"
-            : "回答错误，正确释义如下。";
+            : "回答错误，正确答案如下。";
 
     public bool CanSpeak => _pronouncer.IsAvailable;
 
-    /// <summary>音标行是否显示：有音标或可以发音时显示。</summary>
-    public bool ShowPronunciationRow => HasPhonetic || CanSpeak;
+    /// <summary>音标行是否显示：反向题在作答前隐藏，避免泄露拼写线索。</summary>
+    public bool ShowPronunciationRow =>
+        (HasPhonetic || CanSpeak) && (!IsReverseQuiz || IsAnswered);
 
     public string SnoozeLabel => "稍后提醒";
 
@@ -152,7 +164,12 @@ public sealed partial class WordCardViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSpeaking;
 
-    partial void OnIsAnsweredChanged(bool value) => OnPropertyChanged(nameof(ShowDetails));
+    partial void OnIsAnsweredChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowDetails));
+        OnPropertyChanged(nameof(HeaderText));
+        OnPropertyChanged(nameof(ShowPronunciationRow));
+    }
 
     partial void OnLastAnswerCorrectChanged(bool value) => OnPropertyChanged(nameof(AnswerBanner));
 

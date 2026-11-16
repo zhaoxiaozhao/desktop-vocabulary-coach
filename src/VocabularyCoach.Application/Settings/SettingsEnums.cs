@@ -36,9 +36,12 @@ public enum InteractionMode
     /// <summary>自我评估：认识 / 模糊 / 不认识。</summary>
     SelfReport = 1,
 
-    /// <summary>选择释义：从 4 个选项中选出正确中文释义。</summary>
+    /// <summary>看词选义：从 4 个选项中选出正确中文释义。</summary>
     ChoiceQuiz = 2,
 
-    /// <summary>混合：随机一半使用选择释义，其余自我评估。</summary>
+    /// <summary>混合：随机一半自我评估，其余选择题（正/反随机）。</summary>
     Mixed = 3,
+
+    /// <summary>看义选词：根据中文释义从 4 个英文单词中选出正确单词。</summary>
+    ReverseQuiz = 4,
 }

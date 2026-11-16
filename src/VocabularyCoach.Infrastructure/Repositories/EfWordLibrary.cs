@@ -121,6 +121,40 @@ public sealed class EfWordLibrary : IWordLibrary
             .ToList();
     }
 
+    public async Task<IReadOnlyList<string>> GetDistractorWordsAsync(
+        int excludeWordId,
+        string correctDefinition,
+        int count,
+        int preferredDifficulty,
+        CancellationToken cancellationToken = default)
+    {
+        if (count <= 0)
+        {
+            return [];
+        }
+
+        await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+
+        var rows = await db.Words
+            .AsNoTracking()
+            .Where(x => x.Id != excludeWordId &&
+                        x.Word != string.Empty &&
+                        !db.WordDefinitions.Any(d =>
+                            d.WordId == x.Id && d.DefinitionZh == correctDefinition))
+            .OrderBy(x => x.Difficulty == preferredDifficulty ? 0 : 1)
+            .ThenBy(x => EF.Functions.Random())
+            .Select(x => x.Word)
+            .Take(Math.Max(count * 8, count))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return rows
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(count)
+            .ToList();
+    }
+
     private static async Task<WordCard?> LoadCardAsync(
         VocabularyCoachDbContext db,
         int wordId,

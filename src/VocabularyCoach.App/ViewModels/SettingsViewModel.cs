@@ -62,8 +62,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         InteractionModes =
         [
             new(InteractionMode.SelfReport, "自我评估：认识 / 模糊 / 不认识"),
-            new(InteractionMode.ChoiceQuiz, "选择释义：4 选 1"),
-            new(InteractionMode.Mixed, "混合：随机一半使用选择释义"),
+            new(InteractionMode.ChoiceQuiz, "看词选义：4 选 1"),
+            new(InteractionMode.ReverseQuiz, "看义选词：根据中文选英文"),
+            new(InteractionMode.Mixed, "混合：自我评估 + 正/反选择"),
         ];
 
         Themes =

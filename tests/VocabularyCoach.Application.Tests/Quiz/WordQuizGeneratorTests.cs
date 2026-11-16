@@ -21,9 +21,10 @@ public class WordQuizGeneratorTests
         Assert.NotNull(quiz);
         Assert.Equal(4, quiz!.Choices.Count);
         Assert.Single(quiz.Choices, x => x.IsCorrect);
-        Assert.Equal("有韧性的", quiz.Choices.Single(x => x.IsCorrect).DefinitionZh);
+        Assert.Equal("有韧性的", quiz.Choices.Single(x => x.IsCorrect).Text);
         Assert.Equal(3, quiz.Choices.Count(x => !x.IsCorrect));
-        Assert.Equal(4, quiz.Choices.Select(x => x.DefinitionZh).Distinct().Count());
+        Assert.Equal(4, quiz.Choices.Select(x => x.Text).Distinct().Count());
+        Assert.Equal(QuizDirection.WordToDefinition, quiz.Direction);
     }
 
     [Fact]
@@ -55,7 +56,44 @@ public class WordQuizGeneratorTests
         Assert.NotNull(quiz);
         Assert.Equal(4, quiz!.Choices.Count);
         Assert.Single(quiz.Choices, x => x.IsCorrect);
-        Assert.DoesNotContain(quiz.Choices.Where(x => !x.IsCorrect), x => x.DefinitionZh == "苹果");
+        Assert.DoesNotContain(quiz.Choices.Where(x => !x.IsCorrect), x => x.Text == "苹果");
+    }
+
+    [Fact]
+    public async Task TryCreateAsync_Reverse_BuildsWordChoices()
+    {
+        var library = new FakeWordLibrary
+        {
+            DistractorWords = ["resilience", "resolute", "resident", "result"],
+        };
+        var generator = new WordQuizGenerator(library);
+        var card = CardWithDefinition("resilient", "有韧性的");
+
+        var quiz = await generator.TryCreateAsync(
+            card,
+            QuizDirection.DefinitionToWord,
+            CancellationToken.None);
+
+        Assert.NotNull(quiz);
+        Assert.Equal(QuizDirection.DefinitionToWord, quiz!.Direction);
+        Assert.Equal(4, quiz.Choices.Count);
+        Assert.Equal("resilient", quiz.Choices.Single(x => x.IsCorrect).Text);
+        Assert.Equal(3, quiz.Choices.Count(x => !x.IsCorrect));
+        Assert.DoesNotContain(
+            quiz.Choices.Where(x => !x.IsCorrect),
+            x => string.Equals(x.Text, "resilient", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task TryCreateAsync_Reverse_ReturnsNull_WhenFewerThanThreeDistractors()
+    {
+        var library = new FakeWordLibrary { DistractorWords = ["apple", "apply"] };
+        var generator = new WordQuizGenerator(library);
+
+        Assert.Null(await generator.TryCreateAsync(
+            CardWithDefinition("resilient", "有韧性的"),
+            QuizDirection.DefinitionToWord,
+            CancellationToken.None));
     }
 
     private static WordCard CardWithDefinition(string word, string definition) => new()

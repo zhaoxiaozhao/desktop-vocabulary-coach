@@ -112,6 +112,32 @@ public class EfWordLibraryTests
         Assert.Equal(3, definitions.Distinct().Count());
     }
 
+    [Fact]
+    public async Task GetDistractorWordsAsync_ExcludesTargetAndWordsWithSameDefinition()
+    {
+        await using var database = new SqliteTestDatabase();
+        await database.InitializeAsync();
+
+        var targetId = await AddWordWithDefinitionAsync(database, "resilient", "有韧性的");
+        await AddWordWithDefinitionAsync(database, "resilience", "有韧性的");
+        await AddWordWithDefinitionAsync(database, "ambiguous", "模棱两可的");
+        await AddWordWithDefinitionAsync(database, "momentum", "势头");
+        await AddWordWithDefinitionAsync(database, "gratitude", "感激");
+
+        var library = new EfWordLibrary(database.Factory);
+        var words = await library.GetDistractorWordsAsync(
+            targetId,
+            "有韧性的",
+            3,
+            1,
+            CancellationToken.None);
+
+        Assert.Equal(3, words.Count);
+        Assert.DoesNotContain("resilient", words);
+        Assert.DoesNotContain("resilience", words);
+        Assert.Equal(3, words.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+    }
+
     private static async Task<int> AddWordWithDefinitionAsync(
         SqliteTestDatabase database,
         string word,
