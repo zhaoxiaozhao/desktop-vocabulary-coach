@@ -6,6 +6,9 @@
 - 当前版本：`0.8.2`
 - 目标平台：Windows 10 / 11 x64
 - 技术栈：.NET 10 + WPF + EF Core + SQLite + Generic Host + CommunityToolkit.Mvvm
+- 代码仓库：[github.com/zhaoxiaozhao/desktop-vocabulary-coach](https://github.com/zhaoxiaozhao/desktop-vocabulary-coach)
+- 下载：[Releases](https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/latest)
+- 官网：https://desktop-vocabulary-coach.zhaojia5201314.workers.dev
 - 设计文档：[docs/Desktop_Vocabulary_Coach_Design.md](docs/Desktop_Vocabulary_Coach_Design.md)
 - 开发计划：[docs/ROADMAP.md](docs/ROADMAP.md)
 
@@ -98,16 +101,18 @@ powershell -ExecutionPolicy Bypass -File installer\build-installer.ps1
 `site/` 是一个可直接部署到 Cloudflare Pages 的纯静态落地页：无构建步骤、无第三方脚本、
 深色响应式布局，展示功能、截图、安装步骤、隐私说明与常见问题。
 
+- 线上地址：https://desktop-vocabulary-coach.zhaojia5201314.workers.dev
+- 安装包托管在 GitHub Releases（56.7 MB，超过 Pages 25 MiB 单文件限制）。
 - 部署前只需修改 `site/config.js` 中的 `downloadUrl`（版本、大小与 SHA256 可自动生成）。
-- Cloudflare Pages 单文件上限 25 MiB，安装包约 56 MB，必须放到 R2 公共桶或 GitHub Releases，
-  页面只做下载入口。
 - 本地预览：`python -m http.server 8123 --directory site`。
 - 一键部署（需要已登录的 Cloudflare 账号）：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1 `
-  -DownloadUrl "https://download.example.com/DesktopVocabularyCoach-Setup-0.8.2.exe"
+powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 ```
+
+`site/config.js` 已配置 GitHub Releases 下载地址；如需换地址，追加
+`-DownloadUrl "https://..."` 即可。
 
 详细说明（R2 上传、自定义域名、中国大陆访问注意事项）见 [site/README.md](site/README.md)。
 

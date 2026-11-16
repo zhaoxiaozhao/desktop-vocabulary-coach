@@ -5,6 +5,6 @@ window.VOCAB_CONFIG = {
   size: "54.1 MB",
   sha256: "59df52dd20e79ab450e86e28c24aa2781a50c706dbaf9e5e22ff38efdcbf89cc",
   // 例如：https://download.example.com/DesktopVocabularyCoach-Setup-0.8.2.exe
-  downloadUrl: "",
+  downloadUrl: "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe",
   updatedAt: "2026-11-16",
 };

@@ -5,11 +5,13 @@
 ## 本项目的发布方式
 
 - 代码与安装包：GitHub 公开仓库 + Releases（安装包作为 Release 资产）。
-- 网站：Cloudflare Pages 默认域名 `https://<project>.pages.dev`，不绑定自定义域名。
-- 下载地址格式：
+- 仓库：https://github.com/zhaoxiaozhao/desktop-vocabulary-coach
+- 网站：Cloudflare 默认域名 https://desktop-vocabulary-coach.zhaojia5201314.workers.dev
+  （新版 Cloudflare Pages 已并入 Workers，新建项目使用 `<project>.<account>.workers.dev`）。
+- 下载地址：
 
 ```text
-https://github.com/<owner>/<repo>/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe
+https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe
 ```
 
 > 中国大陆访问 GitHub Releases 可能较慢或被阻断。面向大陆买家销售时，建议同时把安装包
@@ -24,7 +26,7 @@ window.VOCAB_CONFIG = {
   version: "0.8.2",
   size: "54.1 MB",
   sha256: "…",
-  downloadUrl: "https://download.example.com/DesktopVocabularyCoach-Setup-0.8.2.exe",
+  downloadUrl: "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe",
   updatedAt: "2026-11-16",
 };
 ```
@@ -33,7 +35,7 @@ window.VOCAB_CONFIG = {
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\update-site-config.ps1 `
-  -DownloadUrl "https://download.example.com/DesktopVocabularyCoach-Setup-0.8.2.exe"
+  -DownloadUrl "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe"
 ```
 
 ## 为什么安装包不能放在 Pages
@@ -63,7 +65,7 @@ Cloudflare 官方建议把大文件放到 **R2 公共桶**，页面再从 R2 下
 
 1. Cloudflare Dashboard → Workers & Pages → Create → Pages → Upload assets。
 2. 上传 `site/` 目录（**不要把安装包放进 site**）。
-3. 得到 `https://<project>.pages.dev` 地址。
+3. 得到 `https://<project>.<account>.workers.dev` 地址（旧项目可能是 `<project>.pages.dev`）。
 
 ### 方式 B：Wrangler（推荐用封装脚本）
 
