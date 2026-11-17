@@ -248,7 +248,7 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
 - 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
 
-### 0.9.0 增量：试用、激活与自动更新
+### 0.9.0 增量：试用、激活、自动更新与句子练习
 
 - 首次启动自动开始 30 天全功能试用，无需注册；到期只暂停弹卡与生词捕获，数据保留。
 - 试用状态文件 + 注册表双写，取最早首启时间，时钟回拨超过 1 天按到期处理。
