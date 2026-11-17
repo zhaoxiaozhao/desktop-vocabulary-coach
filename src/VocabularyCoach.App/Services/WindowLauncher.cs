@@ -18,6 +18,7 @@ public sealed class WindowLauncher
     private CapturedWordsWindow? _capturedWordsWindow;
     private LicenseWindow? _licenseWindow;
     private UpdateWindow? _updateWindow;
+    private SentencePracticeWindow? _sentencePracticeWindow;
 
     public WindowLauncher(IServiceProvider services, ILogger<WindowLauncher> logger)
     {
@@ -58,6 +59,24 @@ public sealed class WindowLauncher
         catch (Exception ex)
         {
             _logger.LogError(ex, "打开许可证窗口失败。");
+        }
+    }
+
+    public void ShowSentencePractice()
+    {
+        try
+        {
+            if (_sentencePracticeWindow is null)
+            {
+                _sentencePracticeWindow = _services.GetRequiredService<SentencePracticeWindow>();
+                _sentencePracticeWindow.Closed += (_, _) => _sentencePracticeWindow = null;
+            }
+
+            ShowWindow(_sentencePracticeWindow);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "打开句子练习窗口失败。");
         }
     }
 

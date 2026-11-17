@@ -40,6 +40,9 @@
     <Content Include="..\..\data\seed\words.seed.json"
              Link="Seed\words.seed.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\data\seed\sentences.seed.json"
+             Link="Seed\sentences.seed.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

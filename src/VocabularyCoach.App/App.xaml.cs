@@ -236,6 +236,8 @@ public partial class App : System.Windows.Application
         builder.Services.AddTransient<LicenseWindow>();
         builder.Services.AddTransient<UpdateViewModel>();
         builder.Services.AddTransient<UpdateWindow>();
+        builder.Services.AddTransient<SentencePracticeViewModel>();
+        builder.Services.AddTransient<SentencePracticeWindow>();
 
         return builder.Build();
     }

@@ -107,6 +107,7 @@ public sealed class TrayIconService : IDisposable
         _menu.Items.Add(new Forms.ToolStripSeparator());
         _menu.Items.Add(CreateItem("记录生词（Ctrl+Alt+W）", (_, _) => CaptureRequested?.Invoke(this, EventArgs.Empty)));
         _menu.Items.Add(CreateItem("生词本", (_, _) => _windowLauncher.ShowCapturedWords()));
+        _menu.Items.Add(CreateItem("句子练习…", (_, _) => ShowSentencePractice()));
         _menu.Items.Add(new Forms.ToolStripSeparator());
         _menu.Items.Add(CreateItem("今日学习统计", (_, _) => _windowLauncher.ShowStatistics()));
         _menu.Items.Add(CreateItem("设置", (_, _) => _windowLauncher.ShowSettings()));
@@ -149,6 +150,18 @@ public sealed class TrayIconService : IDisposable
     private void ShowWordNow()
     {
         _ = ShowWordNowAsync();
+    }
+
+    private void ShowSentencePractice()
+    {
+        if (!_license.CanUsePremiumFeatures)
+        {
+            ShowBalloon("试用已结束", "激活许可证后可继续使用句子练习。");
+            _windowLauncher.ShowLicense();
+            return;
+        }
+
+        _windowLauncher.ShowSentencePractice();
     }
 
     private async Task ShowWordNowAsync()

@@ -1,0 +1,636 @@
+{
+  "version": 1,
+  "description": "Offline spoken-English sentence bank for fill-in-the-blank practice. Authored for Desktop Vocabulary Coach.",
+  "sentences": [
+    {
+      "word": "favor",
+      "sentence": "Could you do me a ____?",
+      "answer": "favor",
+      "translationZh": "你能帮我个忙吗？",
+      "pattern": "do sb a favor",
+      "grammarNote": "favor 作名词，do sb a favor 是口语里最常用的“帮个忙”表达。",
+      "distractors": ["case", "matter", "problem"]
+    },
+    {
+      "word": "afford",
+      "sentence": "I can't ____ to buy a new car right now.",
+      "answer": "afford",
+      "translationZh": "我现在买不起新车。",
+      "pattern": "afford to do sth",
+      "grammarNote": "afford 后接 to do，表示“负担得起做某事”。",
+      "distractors": ["spend", "pay", "cost"]
+    },
+    {
+      "word": "borrow",
+      "sentence": "Can I ____ your phone for a minute?",
+      "answer": "borrow",
+      "translationZh": "我能借你的手机用一下吗？",
+      "pattern": "borrow sth from sb",
+      "grammarNote": "borrow 是“借入”，borrow sth from sb；lend 是“借出”。",
+      "distractors": ["lend", "keep", "use"]
+    },
+    {
+      "word": "lend",
+      "sentence": "Could you ____ me your umbrella?",
+      "answer": "lend",
+      "translationZh": "能把你的伞借给我吗？",
+      "pattern": "lend sb sth",
+      "grammarNote": "lend sb sth = 把某物借给某人；borrow 是向别人借入。",
+      "distractors": ["borrow", "keep", "return"]
+    },
+    {
+      "word": "remind",
+      "sentence": "Please ____ me to call the doctor.",
+      "answer": "remind",
+      "translationZh": "请提醒我给医生打电话。",
+      "pattern": "remind sb to do sth",
+      "grammarNote": "remind sb to do sth = 提醒某人做某事；remember 是“自己记得”。",
+      "distractors": ["remember", "forget", "recall"]
+    },
+    {
+      "word": "forget",
+      "sentence": "Don't ____ to lock the door.",
+      "answer": "forget",
+      "translationZh": "别忘了锁门。",
+      "pattern": "forget to do sth",
+      "grammarNote": "forget to do 表示“忘记去做”；forget doing 表示“忘记做过”。",
+      "distractors": ["remember", "remind", "leave"]
+    },
+    {
+      "word": "mind",
+      "sentence": "Would you ____ opening the window?",
+      "answer": "mind",
+      "translationZh": "你介意开一下窗吗？",
+      "pattern": "Would you mind doing...?",
+      "grammarNote": "Would you mind doing...? 是委婉请求，mind 后接动名词。",
+      "distractors": ["matter", "care", "allow"]
+    },
+    {
+      "word": "rather",
+      "sentence": "I'd ____ stay at home tonight.",
+      "answer": "rather",
+      "translationZh": "今晚我宁愿待在家里。",
+      "pattern": "would rather do sth",
+      "grammarNote": "would rather do sth = 宁愿做某事，后面直接跟动词原形。",
+      "distractors": ["better", "prefer", "soon"]
+    },
+    {
+      "word": "better",
+      "sentence": "You'd ____ see a doctor.",
+      "answer": "better",
+      "translationZh": "你最好去看医生。",
+      "pattern": "had better do sth",
+      "grammarNote": "had better do sth = 最好做某事，后面跟动词原形，不接 to。",
+      "distractors": ["rather", "best", "soon"]
+    },
+    {
+      "word": "depend",
+      "sentence": "It ____ on the weather.",
+      "answer": "depends",
+      "translationZh": "这取决于天气。",
+      "pattern": "depend on",
+      "grammarNote": "主语 it 是第三人称单数，动词用 depends；depend on = 取决于。",
+      "distractors": ["depend", "depended", "depending"]
+    },
+    {
+      "word": "spend",
+      "sentence": "I ____ two hours on this report yesterday.",
+      "answer": "spent",
+      "translationZh": "我昨天在这份报告上花了两个小时。",
+      "pattern": "spend time on sth",
+      "grammarNote": "spend 的过去式是 spent；spend time on sth = 在某事上花时间。",
+      "distractors": ["take", "cost", "pay"]
+    },
+    {
+      "word": "cost",
+      "sentence": "It ____ me 200 yuan.",
+      "answer": "cost",
+      "translationZh": "这花了我 200 元。",
+      "pattern": "sth costs sb money",
+      "grammarNote": "cost 的主语是物，句型是 sth costs sb money；过去式仍是 cost。",
+      "distractors": ["spent", "paid", "took"]
+    },
+    {
+      "word": "take",
+      "sentence": "It ____ me an hour to get to work.",
+      "answer": "takes",
+      "translationZh": "我上班路上要花一个小时。",
+      "pattern": "It takes sb time to do sth",
+      "grammarNote": "It takes sb + 时间 + to do sth 是固定句型；主语 it 用 takes。",
+      "distractors": ["costs", "spends", "pays"]
+    },
+    {
+      "word": "pay",
+      "sentence": "I'll ____ for dinner tonight.",
+      "answer": "pay",
+      "translationZh": "今晚晚饭我来付钱。",
+      "pattern": "pay for sth",
+      "grammarNote": "pay for sth = 为某物付款；spend 的主语是人，cost 的主语是物。",
+      "distractors": ["cost", "spend", "take"]
+    },
+    {
+      "word": "catch",
+      "sentence": "I'll call you later to ____ up.",
+      "answer": "catch",
+      "translationZh": "我晚点打电话跟你聊聊近况。",
+      "pattern": "catch up",
+      "grammarNote": "catch up = 叙旧、了解近况，口语里很常用。",
+      "distractors": ["keep", "make", "take"]
+    },
+    {
+      "word": "figure",
+      "sentence": "I can't ____ out how to use this app.",
+      "answer": "figure",
+      "translationZh": "我搞不懂这个 App 怎么用。",
+      "pattern": "figure out",
+      "grammarNote": "figure out = 弄明白、想出，后面可以接从句。",
+      "distractors": ["make", "take", "look"]
+    },
+    {
+      "word": "hang",
+      "sentence": "Do you want to ____ out this weekend?",
+      "answer": "hang",
+      "translationZh": "这周末想一起出去玩吗？",
+      "pattern": "hang out",
+      "grammarNote": "hang out = 一起消磨时间、出去玩，是非常口语的表达。",
+      "distractors": ["work", "take", "look"]
+    },
+    {
+      "word": "give",
+      "sentence": "Don't ____ up; you're almost there.",
+      "answer": "give",
+      "translationZh": "别放弃，你就快成功了。",
+      "pattern": "give up",
+      "grammarNote": "give up = 放弃；后面接动名词时表示放弃做某事。",
+      "distractors": ["take", "put", "look"]
+    },
+    {
+      "word": "run",
+      "sentence": "We've ____ out of milk.",
+      "answer": "run",
+      "translationZh": "我们的牛奶用完了。",
+      "pattern": "run out of",
+      "grammarNote": "run out of = 用完；现在完成时 have + 过去分词，run 的过去分词仍是 run。",
+      "distractors": ["took", "looked", "came"]
+    },
+    {
+      "word": "put",
+      "sentence": "Don't ____ off until tomorrow what you can do today.",
+      "answer": "put",
+      "translationZh": "今天能做的事不要拖到明天。",
+      "pattern": "put off",
+      "grammarNote": "put off = 推迟；put off doing sth = 推迟做某事。",
+      "distractors": ["take", "give", "look"]
+    },
+    {
+      "word": "turn",
+      "sentence": "It ____ out that he was right.",
+      "answer": "turned",
+      "translationZh": "结果证明他是对的。",
+      "pattern": "turn out",
+      "grammarNote": "turn out = 结果是；这里用过去式 turned，后接 that 从句。",
+      "distractors": ["took", "made", "looked"]
+    },
+    {
+      "word": "end",
+      "sentence": "We ____ up staying at home.",
+      "answer": "ended",
+      "translationZh": "我们最后待在家里了。",
+      "pattern": "end up doing",
+      "grammarNote": "end up doing sth = 最终做了某事；end 用过去式 ended。",
+      "distractors": ["took", "gave", "looked"]
+    },
+    {
+      "word": "make",
+      "sentence": "I need to ____ up for lost time.",
+      "answer": "make",
+      "translationZh": "我得把失去的时间补回来。",
+      "pattern": "make up for",
+      "grammarNote": "make up for sth = 弥补某事；for 后面接名词或动名词。",
+      "distractors": ["take", "give", "put"]
+    },
+    {
+      "word": "hear",
+      "sentence": "I'm looking forward to ____ from you.",
+      "answer": "hearing",
+      "translationZh": "期待收到你的消息。",
+      "pattern": "look forward to doing",
+      "grammarNote": "look forward to 中的 to 是介词，后面接动名词 hearing。",
+      "distractors": ["hear", "heard", "to hear"]
+    },
+    {
+      "word": "use",
+      "sentence": "I'm not ____ to getting up early.",
+      "answer": "used",
+      "translationZh": "我不习惯早起。",
+      "pattern": "be used to doing",
+      "grammarNote": "be used to doing = 习惯于做某事；used to do 则是“过去常常”。",
+      "distractors": ["use", "using", "uses"]
+    },
+    {
+      "word": "get",
+      "sentence": "How do you ____ along with your coworkers?",
+      "answer": "get",
+      "translationZh": "你和同事相处得怎么样？",
+      "pattern": "get along with",
+      "grammarNote": "get along with sb = 与某人相处；how 疑问句用助动词 do。",
+      "distractors": ["take", "make", "look"]
+    },
+    {
+      "word": "come",
+      "sentence": "I hope you can ____ up with a better idea.",
+      "answer": "come",
+      "translationZh": "希望你能想出一个更好的主意。",
+      "pattern": "come up with",
+      "grammarNote": "come up with sth = 想出、提出；can 后接动词原形。",
+      "distractors": ["take", "make", "put"]
+    },
+    {
+      "word": "take",
+      "sentence": "Could you ____ care of my cat this weekend?",
+      "answer": "take",
+      "translationZh": "这周末你能帮我照顾猫吗？",
+      "pattern": "take care of",
+      "grammarNote": "take care of = 照顾；Could you 后接动词原形。",
+      "distractors": ["make", "give", "put"]
+    },
+    {
+      "word": "pick",
+      "sentence": "I'll ____ you up at the airport.",
+      "answer": "pick",
+      "translationZh": "我会去机场接你。",
+      "pattern": "pick sb up",
+      "grammarNote": "pick sb up = 开车接某人；代词要放在 pick 和 up 中间。",
+      "distractors": ["take", "drop", "put"]
+    },
+    {
+      "word": "drop",
+      "sentence": "Can you ____ me off at the station?",
+      "answer": "drop",
+      "translationZh": "你能把我送到车站吗？",
+      "pattern": "drop sb off",
+      "grammarNote": "drop sb off = 开车把某人送到某处；与 pick up 相对。",
+      "distractors": ["pick", "take", "put"]
+    },
+    {
+      "word": "check",
+      "sentence": "We need to ____ in before 3 p.m.",
+      "answer": "check",
+      "translationZh": "我们需要在下午 3 点前办理入住。",
+      "pattern": "check in",
+      "grammarNote": "check in = 办理入住/登机手续；need to 后接动词原形。",
+      "distractors": ["take", "look", "put"]
+    },
+    {
+      "word": "get",
+      "sentence": "It took me a week to ____ over the cold.",
+      "answer": "get",
+      "translationZh": "我花了一周才从感冒中恢复。",
+      "pattern": "get over",
+      "grammarNote": "get over sth = 从疾病/打击中恢复；to 后接动词原形。",
+      "distractors": ["take", "make", "look"]
+    },
+    {
+      "word": "break",
+      "sentence": "My car ____ down on the highway.",
+      "answer": "broke",
+      "translationZh": "我的车在高速上抛锚了。",
+      "pattern": "break down",
+      "grammarNote": "break down = 出故障；break 的过去式是 broke。",
+      "distractors": ["took", "made", "looked"]
+    },
+    {
+      "word": "bring",
+      "sentence": "Don't ____ up that topic at dinner.",
+      "answer": "bring",
+      "translationZh": "晚饭时别提那个话题。",
+      "pattern": "bring up",
+      "grammarNote": "bring up = 提起（话题）；Don't 后接动词原形。",
+      "distractors": ["take", "make", "put"]
+    },
+    {
+      "word": "call",
+      "sentence": "They had to ____ off the meeting.",
+      "answer": "call",
+      "translationZh": "他们不得不取消会议。",
+      "pattern": "call off",
+      "grammarNote": "call off = 取消；had to 后接动词原形。",
+      "distractors": ["take", "put", "give"]
+    },
+    {
+      "word": "carry",
+      "sentence": "Please ____ on with your work.",
+      "answer": "carry",
+      "translationZh": "请继续你的工作。",
+      "pattern": "carry on",
+      "grammarNote": "carry on with sth = 继续做某事；也可以直接说 carry on。",
+      "distractors": ["take", "put", "give"]
+    },
+    {
+      "word": "find",
+      "sentence": "I'll ____ out what happened.",
+      "answer": "find",
+      "translationZh": "我会弄清楚发生了什么。",
+      "pattern": "find out",
+      "grammarNote": "find out = 查明、弄清楚；后接宾语从句。",
+      "distractors": ["take", "make", "look"]
+    },
+    {
+      "word": "show",
+      "sentence": "He didn't ____ up until 10.",
+      "answer": "show",
+      "translationZh": "他直到 10 点才出现。",
+      "pattern": "show up",
+      "grammarNote": "show up = 出现、到场；didn't 后接动词原形。",
+      "distractors": ["take", "make", "look"]
+    },
+    {
+      "word": "work",
+      "sentence": "I hope this plan will ____ out.",
+      "answer": "work",
+      "translationZh": "希望这个计划能顺利。",
+      "pattern": "work out",
+      "grammarNote": "work out = 顺利、成功；will 后接动词原形。",
+      "distractors": ["take", "make", "look"]
+    },
+    {
+      "word": "write",
+      "sentence": "Please ____ down my number.",
+      "answer": "write",
+      "translationZh": "请记下我的号码。",
+      "pattern": "write down",
+      "grammarNote": "write down = 写下；代词可放在 write 和 down 中间。",
+      "distractors": ["take", "put", "look"]
+    },
+    {
+      "word": "apply",
+      "sentence": "I'm going to ____ for that job.",
+      "answer": "apply",
+      "translationZh": "我打算申请那份工作。",
+      "pattern": "apply for",
+      "grammarNote": "apply for a job = 申请工作；be going to 后接动词原形。",
+      "distractors": ["ask", "look", "wait"]
+    },
+    {
+      "word": "agree",
+      "sentence": "I don't ____ with you on this.",
+      "answer": "agree",
+      "translationZh": "在这件事上我不同意你。",
+      "pattern": "agree with sb",
+      "grammarNote": "agree with sb = 同意某人；agree to sth = 同意某事。",
+      "distractors": ["accept", "argue", "believe"]
+    },
+    {
+      "word": "apologize",
+      "sentence": "You should ____ for being late.",
+      "answer": "apologize",
+      "translationZh": "你应该为迟到道歉。",
+      "pattern": "apologize for",
+      "grammarNote": "apologize for sth/doing sth = 为某事道歉；should 后接动词原形。",
+      "distractors": ["excuse", "sorry", "thank"]
+    },
+    {
+      "word": "complain",
+      "sentence": "He always ____ about the food.",
+      "answer": "complains",
+      "translationZh": "他总是抱怨食物。",
+      "pattern": "complain about",
+      "grammarNote": "主语 he 是第三人称单数，用 complains；complain about = 抱怨。",
+      "distractors": ["complained", "complaining", "complain"]
+    },
+    {
+      "word": "worry",
+      "sentence": "Don't ____ about things you can't control.",
+      "answer": "worry",
+      "translationZh": "别为无法控制的事情担心。",
+      "pattern": "worry about",
+      "grammarNote": "worry about sth = 担心某事；Don't 后接动词原形。",
+      "distractors": ["care", "think", "mind"]
+    },
+    {
+      "word": "care",
+      "sentence": "I don't ____ what other people think.",
+      "answer": "care",
+      "translationZh": "我不在乎别人怎么想。",
+      "pattern": "care about / care what...",
+      "grammarNote": "care 可以接 about，也可以直接接 what 从句；don't 后接原形。",
+      "distractors": ["mind", "worry", "matter"]
+    },
+    {
+      "word": "concentrate",
+      "sentence": "I can't ____ on my work with this noise.",
+      "answer": "concentrate",
+      "translationZh": "这么吵我没法专心工作。",
+      "pattern": "concentrate on",
+      "grammarNote": "concentrate on sth = 专注于某事；can't 后接动词原形。",
+      "distractors": ["depend", "rely", "look"]
+    },
+    {
+      "word": "rely",
+      "sentence": "You can ____ on me.",
+      "answer": "rely",
+      "translationZh": "你可以依靠我。",
+      "pattern": "rely on",
+      "grammarNote": "rely on sb = 依靠某人；can 后接动词原形。",
+      "distractors": ["listen", "wait", "look"]
+    },
+    {
+      "word": "belong",
+      "sentence": "This book ____ to me.",
+      "answer": "belongs",
+      "translationZh": "这本书是我的。",
+      "pattern": "belong to",
+      "grammarNote": "主语 this book 是第三人称单数，用 belongs；belong to = 属于。",
+      "distractors": ["belong", "belonged", "belonging"]
+    },
+    {
+      "word": "prevent",
+      "sentence": "The rain ____ us from going out.",
+      "answer": "prevented",
+      "translationZh": "大雨阻止了我们出门。",
+      "pattern": "prevent sb from doing",
+      "grammarNote": "prevent sb from doing sth = 阻止某人做某事；这里用过去式 prevented。",
+      "distractors": ["protected", "pretended", "presented"]
+    },
+    {
+      "word": "succeed",
+      "sentence": "She ____ in passing the exam.",
+      "answer": "succeeded",
+      "translationZh": "她成功通过了考试。",
+      "pattern": "succeed in doing",
+      "grammarNote": "succeed in doing sth = 成功做某事；succeed 的过去式是 succeeded。",
+      "distractors": ["managed", "failed", "tried"]
+    },
+    {
+      "word": "suffer",
+      "sentence": "He ____ from headaches.",
+      "answer": "suffers",
+      "translationZh": "他经常头痛。",
+      "pattern": "suffer from",
+      "grammarNote": "主语 he 是第三人称单数，用 suffers；suffer from = 受……困扰。",
+      "distractors": ["suffer", "suffered", "suffering"]
+    },
+    {
+      "word": "insist",
+      "sentence": "She ____ on paying for dinner.",
+      "answer": "insisted",
+      "translationZh": "她坚持要付晚饭钱。",
+      "pattern": "insist on doing",
+      "grammarNote": "insist on doing sth = 坚持做某事；这里用过去式 insisted。",
+      "distractors": ["insist", "insists", "insisting"]
+    },
+    {
+      "word": "congratulate",
+      "sentence": "I want to ____ you on your new job.",
+      "answer": "congratulate",
+      "translationZh": "我想恭喜你找到新工作。",
+      "pattern": "congratulate sb on sth",
+      "grammarNote": "congratulate sb on sth = 祝贺某人某事；want to 后接动词原形。",
+      "distractors": ["celebrate", "thank", "praise"]
+    },
+    {
+      "word": "improve",
+      "sentence": "I want to ____ my speaking.",
+      "answer": "improve",
+      "translationZh": "我想提高我的口语。",
+      "pattern": "improve sth",
+      "grammarNote": "improve 直接接宾语，不需要加 in；want to 后接动词原形。",
+      "distractors": ["increase", "raise", "grow"]
+    },
+    {
+      "word": "go",
+      "sentence": "I ____ to the gym yesterday.",
+      "answer": "went",
+      "translationZh": "我昨天去健身房了。",
+      "pattern": "go 的过去式",
+      "grammarNote": "yesterday 表示过去，go 的过去式是 went。",
+      "distractors": ["go", "gone", "going"]
+    },
+    {
+      "word": "go",
+      "sentence": "She ____ to work by bus.",
+      "answer": "goes",
+      "translationZh": "她坐公交车上班。",
+      "pattern": "一般现在时第三人称单数",
+      "grammarNote": "主语 she 是第三人称单数，go 变为 goes。",
+      "distractors": ["go", "went", "going"]
+    },
+    {
+      "word": "go",
+      "sentence": "I'm ____ to call you tomorrow.",
+      "answer": "going",
+      "translationZh": "我明天会给你打电话。",
+      "pattern": "be going to do",
+      "grammarNote": "be going to do sth 表示计划或预测；I'm 后接 going。",
+      "distractors": ["go", "went", "gone"]
+    },
+    {
+      "word": "see",
+      "sentence": "I have ____ this movie before.",
+      "answer": "seen",
+      "translationZh": "我以前看过这部电影。",
+      "pattern": "现在完成时",
+      "grammarNote": "have + 过去分词；see 的过去分词是 seen。",
+      "distractors": ["saw", "see", "seeing"]
+    },
+    {
+      "word": "eat",
+      "sentence": "Have you ____ yet?",
+      "answer": "eaten",
+      "translationZh": "你吃饭了吗？",
+      "pattern": "现在完成时",
+      "grammarNote": "Have you + 过去分词；eat 的过去分词是 eaten。",
+      "distractors": ["ate", "eat", "eating"]
+    },
+    {
+      "word": "do",
+      "sentence": "What have you ____ today?",
+      "answer": "done",
+      "translationZh": "你今天都做了什么？",
+      "pattern": "现在完成时",
+      "grammarNote": "have + 过去分词；do 的过去分词是 done。",
+      "distractors": ["did", "do", "doing"]
+    },
+    {
+      "word": "write",
+      "sentence": "I've ____ three emails this morning.",
+      "answer": "written",
+      "translationZh": "我今天上午写了三封邮件。",
+      "pattern": "现在完成时",
+      "grammarNote": "I've = I have，后接过去分词；write 的过去分词是 written。",
+      "distractors": ["wrote", "write", "writing"]
+    },
+    {
+      "word": "speak",
+      "sentence": "Have you ____ to him?",
+      "answer": "spoken",
+      "translationZh": "你跟他说过了吗？",
+      "pattern": "现在完成时",
+      "grammarNote": "Have you + 过去分词；speak 的过去分词是 spoken。",
+      "distractors": ["spoke", "speak", "speaking"]
+    },
+    {
+      "word": "break",
+      "sentence": "My phone is ____.",
+      "answer": "broken",
+      "translationZh": "我的手机坏了。",
+      "pattern": "be + 过去分词作形容词",
+      "grammarNote": "broken 是 break 的过去分词，这里作形容词表示“坏了的”。",
+      "distractors": ["broke", "break", "breaking"]
+    },
+    {
+      "word": "interest",
+      "sentence": "I'm ____ in learning Japanese.",
+      "answer": "interested",
+      "translationZh": "我对学日语感兴趣。",
+      "pattern": "be interested in",
+      "grammarNote": "表示“人感兴趣”用 interested；interesting 用来形容事物。",
+      "distractors": ["interest", "interesting", "interests"]
+    },
+    {
+      "word": "bore",
+      "sentence": "I'm ____ with this game.",
+      "answer": "bored",
+      "translationZh": "我对这个游戏感到无聊。",
+      "pattern": "be bored with",
+      "grammarNote": "人感到无聊用 bored；boring 表示“令人无聊的”。",
+      "distractors": ["bore", "boring", "bores"]
+    },
+    {
+      "word": "excite",
+      "sentence": "We're ____ about the trip.",
+      "answer": "excited",
+      "translationZh": "我们对这次旅行很兴奋。",
+      "pattern": "be excited about",
+      "grammarNote": "人感到兴奋用 excited；exciting 表示“令人兴奋的”。",
+      "distractors": ["excite", "exciting", "excites"]
+    },
+    {
+      "word": "surprise",
+      "sentence": "I was ____ by the news.",
+      "answer": "surprised",
+      "translationZh": "这个消息让我很惊讶。",
+      "pattern": "be surprised by",
+      "grammarNote": "人感到惊讶用 surprised；surprising 表示“令人惊讶的”。",
+      "distractors": ["surprise", "surprising", "surprises"]
+    },
+    {
+      "word": "tire",
+      "sentence": "I'm too ____ to go out.",
+      "answer": "tired",
+      "translationZh": "我太累了，不想出门。",
+      "pattern": "be too ... to do",
+      "grammarNote": "tired 表示“感到累的”；too ... to ... 表示“太……而不能……”。",
+      "distractors": ["tire", "tiring", "tires"]
+    },
+    {
+      "word": "relax",
+      "sentence": "This music is very ____.",
+      "answer": "relaxing",
+      "translationZh": "这音乐很让人放松。",
+      "pattern": "形容词 -ing",
+      "grammarNote": "形容事物“令人放松”用 relaxing；relaxed 表示“人感到放松”。",
+      "distractors": ["relax", "relaxed", "relaxes"]
+    }
+  ]
+}

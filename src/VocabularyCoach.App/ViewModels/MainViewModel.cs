@@ -253,6 +253,18 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ActivateLicense() => _windowLauncher.ShowLicense();
 
+    [RelayCommand]
+    private void OpenSentencePractice()
+    {
+        if (!_license.CanUsePremiumFeatures)
+        {
+            _windowLauncher.ShowLicense();
+            return;
+        }
+
+        _windowLauncher.ShowSentencePractice();
+    }
+
     private void OnLicenseChanged(object? sender, EventArgs e)
     {
         var dispatcher = System.Windows.Application.Current?.Dispatcher;

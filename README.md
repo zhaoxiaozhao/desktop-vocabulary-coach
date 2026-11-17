@@ -55,6 +55,10 @@ Sprint 6 界面（离屏渲染自真实 XAML）：
 
 ![反向选择题](docs/assets/sprint9-reverse.png)
 
+句子填空（作答后显示答案、翻译与语法/固定句式）：
+
+![句子填空](docs/assets/sprint10-sentence.png)
+
 生词捕获（已收录 / 未收录 / 生词本）：
 
 | 捕获确认 | 未收录需填释义 | 生词本 |
@@ -165,6 +169,15 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
     选择 E 时用橙色标记，并揭示单词、释义、例句与 AI 增强内容，点「继续」关闭卡片。
   - 反向干扰词会排除中文释义与正确答案完全相同的词条，降低多解歧义；
     干扰项不足 3 个时自动回退到自我评估；关闭/超时仍不记录掌握状态。
+- **句子填空练习（0.9.0 增量）**：
+  - 主窗口「句子练习」或托盘「句子练习…」打开，每组 10 句。
+  - 显示口语句子 + 中文翻译，空格处填入合适的单词；可点 A–D 选择，也可切换「手动输入」。
+  - 作答后显示正确答案、中文翻译、固定句式与语法/时态说明；错误会立即纠正。
+  - 句子优先由 AI 生成（启用 AI 时一次请求生成一组）；AI 关闭或失败时使用
+    `Seed/sentences.seed.json` 离线句库（约 70 条口语/语法句）。
+  - 答对记「认识」、答错记「不认识」，以 `SentencePractice` 来源写入现有 SM-2 复习闭环；
+    词库未收录的超高频词（go/take/see 等）仍可练习，但不写入复习进度。
+  - 会话结束显示答对数量，可「再来一组」。
 - **自适应与产品设置（Sprint 5）**：
   - 最近 20 次有效反馈统计；认识 > 80% 且不认识 < 10% 时难度上调一档、新词倾向 +0.05；
     不认识 > 35% 时难度下调一档、新词倾向 -0.1；样本少于 10 次不调整，每次只移动一档。
@@ -222,8 +235,8 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 215 passed
-  Core 33 + Application 140 + Infrastructure 42
+dotnet test  VocabularyCoach.sln   → 223 passed
+  Core 33 + Application 147 + Infrastructure 43
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：
@@ -453,6 +466,12 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
 30. **自动更新**：把 `updates/latest.json` 的版本号改成更高版本并指向一个真实安装包，
     启动 30 秒后托盘出现新版本提示；打开「检查更新…」→「下载并安装」，
     SHA256 校验通过后安装程序静默升级并自动重启。
+31. **句子填空**：主窗口点「句子练习」→ 出现第 1/10 句，显示英文句子与中文翻译；
+    点 A–D 选择答案，作答后正确项变绿、错误项变红，显示正确答案、固定句式与语法说明。
+    切到「手动输入」输入答案（不区分大小写），提交后可看到同样反馈；点「下一句」继续。
+    完成 10 句后显示本组答对数，「再来一组」可重新随机。
+    关闭 AI 时应使用 `Seed/sentences.seed.json` 离线句库；启用 AI 时优先 AI 生成，
+    失败自动回退，界面右上角显示「AI 生成例句」或「离线句库」。
 
 ## 目录结构
 
@@ -503,6 +522,7 @@ installer/
   languages/ChineseSimplified.isl       简体中文安装界面（Inno 官方翻译）
 data/seed/
   words.seed.json                       18,914 词种子词库（生成物）
+  sentences.seed.json                   70 条离线口语句子与语法说明
   README.md                             来源、许可、筛选规则与再生成命令
 docs/licenses/                          ECDICT MIT 许可与署名
 tools/

@@ -11,4 +11,7 @@ public enum LearningSource
 
     /// <summary>测试弹窗。</summary>
     Test = 3,
+
+    /// <summary>句子填空练习。</summary>
+    SentencePractice = 4,
 }

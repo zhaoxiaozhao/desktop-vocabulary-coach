@@ -9,6 +9,7 @@ using VocabularyCoach.Application.Capture;
 using VocabularyCoach.Application.Learning;
 using VocabularyCoach.Application.Licensing;
 using VocabularyCoach.Application.Settings;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Statistics;
 using VocabularyCoach.Application.Updates;
 using VocabularyCoach.Infrastructure.Ai;
@@ -65,6 +66,10 @@ public static class InfrastructureServiceCollectionExtensions
             sp.GetRequiredService<ILogger<DpapiLicenseStore>>()));
         services.AddSingleton<ITrialStateStore>(_ => new WindowsTrialStateStore(
             Path.Combine(AppPaths.RootDirectory, "trial.json")));
+        services.AddSingleton<ISentenceBank>(sp => new OfflineSentenceBank(
+            Path.Combine(AppContext.BaseDirectory, "Seed", "sentences.seed.json"),
+            sp.GetRequiredService<ILogger<OfflineSentenceBank>>()));
+        services.AddSingleton<ISentencePracticeGenerator, AiSentencePracticeGenerator>();
         services.Configure<UpdateOptions>(configuration.GetSection(UpdateOptions.SectionName));
         services.AddSingleton<IUpdateService, HttpUpdateService>();
 

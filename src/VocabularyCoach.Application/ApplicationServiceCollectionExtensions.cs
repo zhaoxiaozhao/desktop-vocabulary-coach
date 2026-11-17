@@ -9,6 +9,7 @@ using VocabularyCoach.Application.Quiz;
 using VocabularyCoach.Application.Recommendation;
 using VocabularyCoach.Application.Review;
 using VocabularyCoach.Application.Scheduling;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Application.Updates;
 
@@ -31,6 +32,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<IVocabularyEnrichmentProvider, MockVocabularyEnrichmentProvider>();
         services.AddSingleton<IAiEnrichmentService, AiEnrichmentService>();
         services.AddSingleton<IWordQuizGenerator, WordQuizGenerator>();
+        services.AddSingleton<ISentencePracticeService, SentencePracticeService>();
         services.AddSingleton<WordCaptureService>();
         services.AddSingleton<IWordCaptureService>(sp => sp.GetRequiredService<WordCaptureService>());
         services.AddSingleton<WordRecommendationService>();
