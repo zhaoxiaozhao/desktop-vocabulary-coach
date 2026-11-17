@@ -121,13 +121,17 @@ public sealed class SentencePracticeService : ISentencePracticeService
             return new SentencePracticeSession(items, AiEnabled: false, AiUsed: false, AiMessage: null);
         }
 
-        if (IsReasoningModel(_settings.Current.AiModel))
+        var sentenceModel = string.IsNullOrWhiteSpace(_settings.Current.SentencePracticeModel)
+            ? _settings.Current.AiModel
+            : _settings.Current.SentencePracticeModel.Trim();
+
+        if (IsReasoningModel(sentenceModel))
         {
             return new SentencePracticeSession(
                 items,
                 AiEnabled: true,
                 AiUsed: false,
-                AiMessage: "当前模型是推理模型，批量句子生成较慢；已使用离线句库。句子练习建议切换到 glm-4-flash。");
+                AiMessage: $"当前句子模型是推理模型（{sentenceModel}），批量句子生成较慢；已使用离线句库。可在设置中把「句子练习模型」改为 glm-4-flash。");
         }
 
         var now = _timeProvider.GetUtcNow();

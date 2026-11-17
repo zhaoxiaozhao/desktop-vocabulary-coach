@@ -73,6 +73,9 @@ public sealed class UserSettings
 
     public string AiModel { get; set; } = "gpt-4o-mini";
 
+    /// <summary>句子练习专用模型；留空则跟随 AiModel。</summary>
+    public string SentencePracticeModel { get; set; } = string.Empty;
+
     public UserSettings Clone() => (UserSettings)MemberwiseClone();
 
     /// <summary>解析勿扰时段；格式错误时返回禁用。</summary>

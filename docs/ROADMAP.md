@@ -244,7 +244,7 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 0.9.0 增量：30 天全功能试用、离线 ECDSA 激活码、自动检查更新与静默升级、看义选词（反向选择题）、句子填空与语法练习。
 - 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 GitHub Releases + 阿里云 OSS 镜像；
   `tools/deploy-site.ps1` 校验下载地址与 SHA256 后一键部署。
-- 全解决方案 225 个自动化测试通过（Core 33 + Application 149 + Infrastructure 43）。
+- 全解决方案 226 个自动化测试通过（Core 33 + Application 150 + Infrastructure 43）。
 - 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
 - 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
 

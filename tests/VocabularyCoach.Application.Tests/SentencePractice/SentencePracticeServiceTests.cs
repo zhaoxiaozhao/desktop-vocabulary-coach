@@ -140,13 +140,47 @@ public class SentencePracticeServiceTests
         Assert.Equal(2, session.Items.Count);
     }
 
+    [Fact]
+    public async Task CreateSession_SentenceModelOverride_UsesFastModel()
+    {
+        var generator = new FakeSentenceGenerator
+        {
+            Items =
+            [
+                new SentencePracticeItem(
+                    1,
+                    "favor",
+                    "Could you do me a ____?",
+                    "favor",
+                    [],
+                    "你能帮我个忙吗？",
+                    "do sb a favor",
+                    "favor 作名词。",
+                    ["favor", "case", "matter", "problem"],
+                    FromAi: true),
+            ],
+        };
+        var service = CreateService(
+            aiEnabled: true,
+            generator: generator,
+            aiModel: "glm-5.3-flash",
+            sentencePracticeModel: "glm-4-flash");
+
+        var session = await service.CreateSessionAsync(10);
+
+        Assert.True(session.AiUsed);
+        Assert.Equal(1, generator.CallCount);
+        Assert.Empty(session.AiMessage ?? string.Empty);
+    }
+
     private static SentencePracticeService CreateService(
         RecordingLearningStore? store = null,
         bool aiEnabled = false,
         FakeSentenceGenerator? generator = null,
         ISentenceBank? bank = null,
         FakeTimeProvider? timeProvider = null,
-        string aiModel = "glm-4-flash")
+        string aiModel = "glm-4-flash",
+        string sentencePracticeModel = "")
     {
         var settings = new FakeSettingsService
         {
@@ -154,6 +188,7 @@ public class SentencePracticeServiceTests
             {
                 AiEnabled = aiEnabled,
                 AiModel = aiModel,
+                SentencePracticeModel = sentencePracticeModel,
             },
         };
 

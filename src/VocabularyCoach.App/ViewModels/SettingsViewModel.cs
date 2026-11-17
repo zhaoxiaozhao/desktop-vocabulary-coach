@@ -180,6 +180,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private string _aiModel = string.Empty;
 
     [ObservableProperty]
+    private string _sentencePracticeModel = string.Empty;
+
+    [ObservableProperty]
     private string _apiKeyStatus = "未设置";
 
     [ObservableProperty]
@@ -228,6 +231,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         SelectedAiPreset = settings.AiPreset;
         AiBaseUrl = settings.AiBaseUrl;
         AiModel = settings.AiModel;
+        SentencePracticeModel = settings.SentencePracticeModel;
     }
 
     /// <summary>窗口加载后刷新 API Key 状态（只显示是否已保存）。</summary>
@@ -301,6 +305,7 @@ public sealed partial class SettingsViewModel : ObservableObject
                 AiPreset = SelectedAiPreset,
                 AiBaseUrl = AiBaseUrl,
                 AiModel = AiModel,
+                SentencePracticeModel = SentencePracticeModel.Trim(),
             };
 
             await _settingsService.SaveAsync(settings, CancellationToken.None);

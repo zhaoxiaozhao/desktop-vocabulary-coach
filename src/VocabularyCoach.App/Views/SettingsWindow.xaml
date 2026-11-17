@@ -405,6 +405,20 @@
 
                         <TextBlock Margin="0,10,0,6"
                                    Style="{StaticResource BodyText}"
+                                   Text="句子练习模型（可选）" />
+                        <TextBox Width="280"
+                                 HorizontalAlignment="Left"
+                                 Style="{StaticResource SearchTextBoxStyle}"
+                                 Text="{Binding SentencePracticeModel, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   MaxWidth="500"
+                                   HorizontalAlignment="Left"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="留空则跟随上面的模型；句子练习建议填 glm-4-flash（非推理模型，批量生成更快）。"
+                                   TextWrapping="Wrap" />
+
+                        <TextBlock Margin="0,10,0,6"
+                                   Style="{StaticResource BodyText}"
                                    Text="API Key（Windows DPAPI 加密保存，留空表示不修改）" />
                         <PasswordBox x:Name="ApiKeyBox"
                                      Width="320"

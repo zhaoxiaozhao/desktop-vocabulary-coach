@@ -52,10 +52,14 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         CancellationToken cancellationToken = default)
     {
         var settings = _settings.Current;
+        var model = string.IsNullOrWhiteSpace(settings.SentencePracticeModel)
+            ? settings.AiModel
+            : settings.SentencePracticeModel.Trim();
+
         if (!settings.AiEnabled
             || settings.AiPreset == AiPreset.Mock
             || string.IsNullOrWhiteSpace(settings.AiBaseUrl)
-            || string.IsNullOrWhiteSpace(settings.AiModel)
+            || string.IsNullOrWhiteSpace(model)
             || cards.Count == 0)
         {
             return [];
@@ -72,7 +76,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         // 并且容易超过 60 秒。拆成每批 5 句并行请求，单批约 30 秒，成功率更高。
         var batches = selected.Chunk(5).ToList();
         var tasks = batches
-            .Select(batch => GenerateBatchAsync(url, settings.AiModel, apiKey, batch, cancellationToken))
+            .Select(batch => GenerateBatchAsync(url, model, apiKey, batch, cancellationToken))
             .ToList();
 
         var results = await Task.WhenAll(tasks).ConfigureAwait(false);
