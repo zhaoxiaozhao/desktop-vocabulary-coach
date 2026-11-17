@@ -152,7 +152,10 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
 
         try
         {
-            _items = await _service.CreateSessionAsync(SessionSize);
+            var session = await _service.CreateSessionAsync(SessionSize);
+            _items = session.Items;
+            StatusMessage = session.AiMessage ?? string.Empty;
+
             if (_items.Count == 0)
             {
                 StatusMessage = "暂无可用句子。请确认 Seed/sentences.seed.json 存在，或在设置中启用 AI。";

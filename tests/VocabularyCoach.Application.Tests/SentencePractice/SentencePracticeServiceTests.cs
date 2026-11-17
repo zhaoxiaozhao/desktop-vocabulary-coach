@@ -17,8 +17,10 @@ public class SentencePracticeServiceTests
     {
         var service = CreateService();
 
-        var items = await service.CreateSessionAsync(10);
+        var session = await service.CreateSessionAsync(10);
+        var items = session.Items;
 
+        Assert.False(session.AiEnabled);
         Assert.Equal(2, items.Count);
         Assert.All(items, item => Assert.False(item.FromAi));
         Assert.All(items, item => Assert.Equal(4, item.Options.Count));
@@ -48,8 +50,11 @@ public class SentencePracticeServiceTests
         };
         var service = CreateService(aiEnabled: true, generator: generator);
 
-        var items = await service.CreateSessionAsync(10);
+        var session = await service.CreateSessionAsync(10);
+        var items = session.Items;
 
+        Assert.True(session.AiEnabled);
+        Assert.True(session.AiUsed);
         Assert.Equal(2, items.Count);
         var favor = items.Single(x => x.Word == "favor");
         Assert.True(favor.FromAi);
@@ -68,7 +73,7 @@ public class SentencePracticeServiceTests
     {
         var store = new RecordingLearningStore();
         var service = CreateService(store: store);
-        var item = (await service.CreateSessionAsync(10)).Single(x => x.Word == "favor");
+        var item = (await service.CreateSessionAsync(10)).Items.Single(x => x.Word == "favor");
 
         var outcome = await service.SubmitAsync(item, answer, Now.AddSeconds(-5));
 
@@ -84,7 +89,7 @@ public class SentencePracticeServiceTests
     {
         var store = new RecordingLearningStore();
         var service = CreateService(store: store, bank: new GoSentenceBank());
-        var item = Assert.Single(await service.CreateSessionAsync(10));
+        var item = Assert.Single((await service.CreateSessionAsync(10)).Items);
 
         Assert.Equal(0, item.WordId);
         var outcome = await service.SubmitAsync(item, "went", Now);
@@ -93,11 +98,37 @@ public class SentencePracticeServiceTests
         Assert.Empty(store.SavedOutcomes);
     }
 
+    [Fact]
+    public async Task CreateSession_WhenAiFails_UsesCooldownBeforeRetrying()
+    {
+        var clock = new FakeTimeProvider(Now);
+        var generator = new FakeSentenceGenerator { Items = [] };
+        var service = CreateService(aiEnabled: true, generator: generator, timeProvider: clock);
+
+        var first = await service.CreateSessionAsync(10);
+
+        Assert.False(first.AiUsed);
+        Assert.Equal(1, generator.CallCount);
+        Assert.Contains("离线", first.AiMessage);
+
+        var second = await service.CreateSessionAsync(10);
+
+        Assert.False(second.AiUsed);
+        Assert.Equal(1, generator.CallCount);
+        Assert.Contains("离线", second.AiMessage);
+
+        clock.Advance(TimeSpan.FromMinutes(11));
+        await service.CreateSessionAsync(10);
+
+        Assert.Equal(2, generator.CallCount);
+    }
+
     private static SentencePracticeService CreateService(
         RecordingLearningStore? store = null,
         bool aiEnabled = false,
         FakeSentenceGenerator? generator = null,
-        ISentenceBank? bank = null)
+        ISentenceBank? bank = null,
+        FakeTimeProvider? timeProvider = null)
     {
         var settings = new FakeSettingsService
         {
@@ -114,7 +145,7 @@ public class SentencePracticeServiceTests
             settings,
             store ?? new RecordingLearningStore(),
             new Sm2ReviewScheduler(),
-            new FakeTimeProvider(Now),
+            timeProvider ?? new FakeTimeProvider(Now),
             NullLogger<SentencePracticeService>.Instance);
     }
 
@@ -203,9 +234,14 @@ public class SentencePracticeServiceTests
     {
         public IReadOnlyList<SentencePracticeItem> Items { get; set; } = [];
 
+        public int CallCount { get; private set; }
+
         public Task<IReadOnlyList<SentencePracticeItem>> GenerateAsync(
             IReadOnlyList<WordCard> cards,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(Items);
+            CancellationToken cancellationToken = default)
+        {
+            CallCount++;
+            return Task.FromResult(Items);
+        }
     }
 }

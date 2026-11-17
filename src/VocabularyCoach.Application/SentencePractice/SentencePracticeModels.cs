@@ -29,6 +29,13 @@ public sealed record SentencePracticeItem(
 /// <summary>提交结果。</summary>
 public sealed record SentencePracticeOutcome(bool IsCorrect, string ExpectedAnswer);
 
+/// <summary>一次句子练习会话；包含 AI 是否成功，便于界面提示回退。</summary>
+public sealed record SentencePracticeSession(
+    IReadOnlyList<SentencePracticeItem> Items,
+    bool AiEnabled,
+    bool AiUsed,
+    string? AiMessage);
+
 /// <summary>离线句库。</summary>
 public interface ISentenceBank
 {
@@ -38,7 +45,7 @@ public interface ISentenceBank
 /// <summary>句子练习会话与结果落库。</summary>
 public interface ISentencePracticeService
 {
-    Task<IReadOnlyList<SentencePracticeItem>> CreateSessionAsync(
+    Task<SentencePracticeSession> CreateSessionAsync(
         int count,
         CancellationToken cancellationToken = default);
 

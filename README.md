@@ -175,6 +175,7 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
   - 作答后显示正确答案、中文翻译、固定句式与语法/时态说明；错误会立即纠正。
   - 句子优先由 AI 生成（启用 AI 时一次请求生成一组）；AI 关闭或失败时使用
     `Seed/sentences.seed.json` 离线句库（约 70 条口语/语法句）。
+  - AI 额度不足/超时/返回无效时自动回退离线，并在窗口底部提示；失败后冷却 10 分钟再重试。
   - 答对记「认识」、答错记「不认识」，以 `SentencePractice` 来源写入现有 SM-2 复习闭环；
     词库未收录的超高频词（go/take/see 等）仍可练习，但不写入复习进度。
   - 会话结束显示答对数量，可「再来一组」。
@@ -235,8 +236,8 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 223 passed
-  Core 33 + Application 147 + Infrastructure 43
+dotnet test  VocabularyCoach.sln   → 224 passed
+  Core 33 + Application 148 + Infrastructure 43
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：

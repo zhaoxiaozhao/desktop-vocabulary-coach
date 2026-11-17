@@ -16,6 +16,10 @@ namespace VocabularyCoach.Application.SentencePractice;
 public sealed class SentencePracticeService : ISentencePracticeService
 {
     private const int MaxSessionSize = 20;
+    private const string AiFallbackMessage = "AI 暂时不可用，已使用离线句库；10 分钟内不再尝试。";
+    private const string AiCooldownMessage = "AI 暂时不可用，正在使用离线句库。";
+
+    private static readonly TimeSpan AiFailureCooldown = TimeSpan.FromMinutes(10);
 
     private readonly IWordLibrary _wordLibrary;
     private readonly ISentenceBank _sentenceBank;
@@ -25,6 +29,9 @@ public sealed class SentencePracticeService : ISentencePracticeService
     private readonly IReviewScheduler _reviewScheduler;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<SentencePracticeService> _logger;
+    private readonly object _aiGate = new();
+
+    private DateTimeOffset? _aiCooldownUntil;
 
     public SentencePracticeService(
         IWordLibrary wordLibrary,
@@ -46,7 +53,7 @@ public sealed class SentencePracticeService : ISentencePracticeService
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<SentencePracticeItem>> CreateSessionAsync(
+    public async Task<SentencePracticeSession> CreateSessionAsync(
         int count,
         CancellationToken cancellationToken = default)
     {
@@ -103,14 +110,21 @@ public sealed class SentencePracticeService : ISentencePracticeService
                 FromAi: false));
         }
 
+        var aiEnabled = _settings.Current.AiEnabled;
         if (cards.Count == 0)
         {
-            return [];
+            return new SentencePracticeSession(items, aiEnabled, AiUsed: false, AiMessage: null);
         }
 
-        if (!_settings.Current.AiEnabled)
+        if (!aiEnabled)
         {
-            return items;
+            return new SentencePracticeSession(items, AiEnabled: false, AiUsed: false, AiMessage: null);
+        }
+
+        var now = _timeProvider.GetUtcNow();
+        if (IsAiCoolingDown(now))
+        {
+            return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiCooldownMessage);
         }
 
         try
@@ -121,7 +135,8 @@ public sealed class SentencePracticeService : ISentencePracticeService
 
             if (aiItems.Count == 0)
             {
-                return items;
+                BeginAiCooldown(_timeProvider.GetUtcNow());
+                return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
             }
 
             var aiByWord = aiItems
@@ -133,12 +148,20 @@ public sealed class SentencePracticeService : ISentencePracticeService
                 .Select(item => aiByWord.TryGetValue(item.Word, out var ai) ? ai : item)
                 .ToList();
 
+            var aiCount = merged.Count(x => x.FromAi);
+            if (aiCount == 0)
+            {
+                BeginAiCooldown(_timeProvider.GetUtcNow());
+                return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
+            }
+
+            ClearAiCooldown();
             _logger.LogInformation(
                 "句子练习：{Total} 句，其中 AI 生成 {AiCount} 句。",
                 merged.Count,
-                merged.Count(x => x.FromAi));
+                aiCount);
 
-            return merged;
+            return new SentencePracticeSession(merged, AiEnabled: true, AiUsed: true, AiMessage: null);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -147,7 +170,32 @@ public sealed class SentencePracticeService : ISentencePracticeService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "AI 生成句子失败，使用离线句库。");
-            return items;
+            BeginAiCooldown(_timeProvider.GetUtcNow());
+            return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
+        }
+    }
+
+    private bool IsAiCoolingDown(DateTimeOffset now)
+    {
+        lock (_aiGate)
+        {
+            return _aiCooldownUntil is { } until && now < until;
+        }
+    }
+
+    private void BeginAiCooldown(DateTimeOffset now)
+    {
+        lock (_aiGate)
+        {
+            _aiCooldownUntil = now + AiFailureCooldown;
+        }
+    }
+
+    private void ClearAiCooldown()
+    {
+        lock (_aiGate)
+        {
+            _aiCooldownUntil = null;
         }
     }
 
