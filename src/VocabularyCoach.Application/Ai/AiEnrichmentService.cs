@@ -11,7 +11,7 @@ namespace VocabularyCoach.Application.Ai;
 /// </summary>
 public sealed class AiEnrichmentService : IAiEnrichmentService
 {
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(60);
 
     private readonly ISettingsService _settings;
     private readonly IAiCacheStore _cache;
@@ -136,7 +136,11 @@ public sealed class AiEnrichmentService : IAiEnrichmentService
         var result = await GenerateAsync(card, apiKey, cacheResult: false, cancellationToken).ConfigureAwait(false);
 
         return result is null
-            ? new AiTestResult(false, "连接失败：请检查 Base URL、模型名称与 API Key（详细信息已写入日志）。")
+            ? new AiTestResult(
+                false,
+                "连接失败：请检查 Base URL、模型名称与 API Key。"
+                + "常见原因：Key 与服务商不匹配、Base URL/模型名错误、余额不足，"
+                + "或免费模型只允许官方客户端使用。日志中有 HTTP 状态码。")
             : new AiTestResult(true, $"连接成功：模型返回了有效内容（{settings.AiModel}）。");
     }
 

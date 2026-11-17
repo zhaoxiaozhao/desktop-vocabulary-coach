@@ -121,6 +121,15 @@ public sealed class SentencePracticeService : ISentencePracticeService
             return new SentencePracticeSession(items, AiEnabled: false, AiUsed: false, AiMessage: null);
         }
 
+        if (IsReasoningModel(_settings.Current.AiModel))
+        {
+            return new SentencePracticeSession(
+                items,
+                AiEnabled: true,
+                AiUsed: false,
+                AiMessage: "当前模型是推理模型，批量句子生成较慢；已使用离线句库。句子练习建议切换到 glm-4-flash。");
+        }
+
         var now = _timeProvider.GetUtcNow();
         if (IsAiCoolingDown(now))
         {
@@ -140,7 +149,7 @@ public sealed class SentencePracticeService : ISentencePracticeService
             }
 
             var aiByWord = aiItems
-                .Where(x => x.WordId > 0 && x.Options.Count >= 4)
+                .Where(x => x.Options.Count >= 4)
                 .GroupBy(x => x.Word, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
@@ -173,6 +182,17 @@ public sealed class SentencePracticeService : ISentencePracticeService
             BeginAiCooldown(_timeProvider.GetUtcNow());
             return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
         }
+    }
+
+    private static bool IsReasoningModel(string model)
+    {
+        var name = model.Trim().ToLowerInvariant();
+        return name.Contains("glm-5")
+            || name.Contains("glm-4.5")
+            || name.Contains("reasoner")
+            || name.Contains("deepseek-r1")
+            || name.StartsWith("o1")
+            || name.StartsWith("o3");
     }
 
     private bool IsAiCoolingDown(DateTimeOffset now)

@@ -52,7 +52,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDatabaseBackupService, SqliteDatabaseBackupService>();
 
         services.AddSingleton(new HttpClient { Timeout = TimeSpan.FromSeconds(30) });
-        services.AddSingleton<IVocabularyEnrichmentProvider, OpenAiCompatibleEnrichmentProvider>();
+        services.AddSingleton<IVocabularyEnrichmentProvider>(sp =>
+            new OpenAiCompatibleEnrichmentProvider(
+                new HttpClient { Timeout = TimeSpan.FromSeconds(60) },
+                sp.GetRequiredService<ILogger<OpenAiCompatibleEnrichmentProvider>>()));
         services.AddSingleton<IAiCacheStore, EfAiCacheStore>();
         services.AddSingleton<ISecretStore>(sp => new DpapiSecretStore(
             Path.Combine(AppPaths.RootDirectory, "ai.key"),

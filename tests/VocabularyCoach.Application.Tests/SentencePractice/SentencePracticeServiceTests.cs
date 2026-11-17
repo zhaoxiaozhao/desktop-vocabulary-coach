@@ -123,18 +123,37 @@ public class SentencePracticeServiceTests
         Assert.Equal(2, generator.CallCount);
     }
 
+    [Fact]
+    public async Task CreateSession_ReasoningModel_SkipsBatchGeneration()
+    {
+        var generator = new FakeSentenceGenerator { Items = [] };
+        var service = CreateService(
+            aiEnabled: true,
+            generator: generator,
+            aiModel: "glm-5.3-flash");
+
+        var session = await service.CreateSessionAsync(10);
+
+        Assert.False(session.AiUsed);
+        Assert.Equal(0, generator.CallCount);
+        Assert.Contains("推理模型", session.AiMessage);
+        Assert.Equal(2, session.Items.Count);
+    }
+
     private static SentencePracticeService CreateService(
         RecordingLearningStore? store = null,
         bool aiEnabled = false,
         FakeSentenceGenerator? generator = null,
         ISentenceBank? bank = null,
-        FakeTimeProvider? timeProvider = null)
+        FakeTimeProvider? timeProvider = null,
+        string aiModel = "glm-4-flash")
     {
         var settings = new FakeSettingsService
         {
             Current = new VocabularyCoach.Application.Settings.UserSettings
             {
                 AiEnabled = aiEnabled,
+                AiModel = aiModel,
             },
         };
 

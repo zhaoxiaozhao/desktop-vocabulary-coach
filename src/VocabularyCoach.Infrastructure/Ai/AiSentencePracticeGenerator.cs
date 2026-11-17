@@ -67,16 +67,42 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
             .ConfigureAwait(false) ?? string.Empty;
 
         var url = $"{settings.AiBaseUrl.TrimEnd('/')}/chat/completions";
+
+        // 推理模型（如 GLM-5.3）一次生成 10 句会把 token 全部花在 reasoning 上，
+        // 并且容易超过 60 秒。拆成每批 5 句并行请求，单批约 30 秒，成功率更高。
+        var batches = selected.Chunk(5).ToList();
+        var tasks = batches
+            .Select(batch => GenerateBatchAsync(url, settings.AiModel, apiKey, batch, cancellationToken))
+            .ToList();
+
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        var items = results.SelectMany(x => x).ToList();
+
+        if (items.Count > 0)
+        {
+            _logger.LogInformation("AI 已生成 {Count} 条句子练习。", items.Count);
+        }
+
+        return items;
+    }
+
+    private async Task<IReadOnlyList<SentencePracticeItem>> GenerateBatchAsync(
+        string url,
+        string model,
+        string apiKey,
+        IReadOnlyList<WordCard> batch,
+        CancellationToken cancellationToken)
+    {
         var payload = new
         {
-            model = settings.AiModel,
+            model = model,
             messages = new[]
             {
                 new { role = "system", content = SystemPrompt },
-                new { role = "user", content = BuildUserPrompt(selected) },
+                new { role = "user", content = BuildUserPrompt(batch) },
             },
             temperature = 0.7,
-            max_tokens = 2500,
+            max_tokens = 5000,
         };
 
         using var message = new HttpRequestMessage(HttpMethod.Post, url)
@@ -98,7 +124,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
-                    "AI 句子生成请求失败：{StatusCode}，回退离线句库。",
+                    "AI 句子生成请求失败：{StatusCode}，本批回退离线句库。",
                     (int)response.StatusCode);
                 return [];
             }
@@ -111,14 +137,8 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
                 .ParseAsync(stream, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            var content = ExtractContent(document);
-            var items = ParseItems(content, selected);
-            if (items.Count > 0)
-            {
-                _logger.LogInformation("AI 已生成 {Count} 条句子练习。", items.Count);
-            }
-
-            return items;
+            var content = ExtractContent(document, model);
+            return ParseItems(content, batch);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -126,7 +146,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "AI 句子生成失败，回退离线句库。");
+            _logger.LogWarning(ex, "AI 句子生成失败，本批回退离线句库。");
             return [];
         }
     }
@@ -142,7 +162,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         return "Generate one exercise for each word below:\n" + string.Join('\n', lines);
     }
 
-    private static string? ExtractContent(JsonDocument document)
+    private string? ExtractContent(JsonDocument document, string model)
     {
         if (!document.RootElement.TryGetProperty("choices", out var choices)
             || choices.ValueKind != JsonValueKind.Array
@@ -151,8 +171,19 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
             return null;
         }
 
-        var message = choices[0];
-        if (!message.TryGetProperty("message", out var messageElement)
+        var choice = choices[0];
+        var finishReason = choice.TryGetProperty("finish_reason", out var finish)
+            ? finish.GetString()
+            : null;
+
+        if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning(
+                "AI 句子输出被截断（finish_reason=length）：{Model}。推理模型建议改用 glm-4-flash 或减少每批数量。",
+                model);
+        }
+
+        if (!choice.TryGetProperty("message", out var messageElement)
             || !messageElement.TryGetProperty("content", out var contentElement)
             || contentElement.ValueKind != JsonValueKind.String)
         {

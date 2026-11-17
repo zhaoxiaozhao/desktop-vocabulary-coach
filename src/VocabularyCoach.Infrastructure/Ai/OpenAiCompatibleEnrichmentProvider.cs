@@ -51,7 +51,9 @@ public sealed class OpenAiCompatibleEnrichmentProvider : IVocabularyEnrichmentPr
                 new { role = "user", content = BuildUserPrompt(request) },
             },
             temperature = 0.4,
-            max_tokens = 400,
+            // 推理模型（GLM-5.3 / DeepSeek R1 等）会先输出 reasoning_content，
+            // 400 token 会导致 JSON 被截断，测试连接和卡片增强都会失败。
+            max_tokens = 2000,
         };
 
         using var message = new HttpRequestMessage(HttpMethod.Post, url)
@@ -94,6 +96,18 @@ public sealed class OpenAiCompatibleEnrichmentProvider : IVocabularyEnrichmentPr
                 choices.GetArrayLength() == 0)
             {
                 return null;
+            }
+
+            var finishReason = choices[0].TryGetProperty("finish_reason", out var finish)
+                ? finish.GetString()
+                : null;
+
+            if (string.Equals(finishReason, "length", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning(
+                    "AI 输出被截断（finish_reason=length）：{BaseUrl} / {Model}。推理模型可能需要更大的 max_tokens。",
+                    request.BaseUrl,
+                    request.Model);
             }
 
             var content = choices[0]

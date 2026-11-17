@@ -236,8 +236,8 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 224 passed
-  Core 33 + Application 148 + Infrastructure 43
+dotnet test  VocabularyCoach.sln   → 225 passed
+  Core 33 + Application 149 + Infrastructure 43
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：
@@ -392,8 +392,12 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
 - 服务商预设：OpenAI、Anthropic、Gemini、DeepSeek、Moonshot Kimi、阿里通义千问、智谱 GLM、
   SiliconFlow、自定义（任意 OpenAI-compatible Base URL）、Mock（离线演示）。
 - 需要填写 Base URL、模型名称与 API Key；「测试连接」会用 `resilient` 发起一次真实请求。
+- 测试连接优先使用输入框中的 Key；测试已保存的 Key 时请先清空输入框。
+- 推理模型（GLM-5.3、DeepSeek R1、o1/o3 等）需要更大的 `max_tokens`；0.9.0 已把卡片增强上限调到
+  2000、超时 60 秒。句子练习对推理模型会直接使用离线句库，建议切换 `glm-4-flash`。
 - 生成内容只用于卡片例句/简释/易混词提示；首次遇到单词时后台生成，下一次展示生效。
 - Key 文件：`%LocalAppData%\DesktopVocabularyCoach\ai.key`（DPAPI 加密，不可跨用户/机器复制）。
+- 401/402/403/404/429 与超时的排查见 [docs/ai-troubleshooting.md](docs/ai-troubleshooting.md)。
 
 ## 手动验收步骤
 
