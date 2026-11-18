@@ -230,6 +230,11 @@ public sealed class SentencePracticeService : ISentencePracticeService
                 merged.Count,
                 aiCount);
 
+            await PersistAiItemsAsync(
+                    merged.Where(x => x.FromAi),
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             return new SentencePracticeSession(merged, AiEnabled: true, AiUsed: true, AiMessage: null);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -241,6 +246,46 @@ public sealed class SentencePracticeService : ISentencePracticeService
             _logger.LogWarning(ex, "AI 生成句子失败，使用离线句库。");
             BeginAiCooldown(_timeProvider.GetUtcNow());
             return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
+        }
+    }
+
+    private async Task PersistAiItemsAsync(
+        IEnumerable<SentencePracticeItem> items,
+        CancellationToken cancellationToken)
+    {
+        var model = SentenceModelHelper.ResolveModel(_settings.Current);
+        var now = _timeProvider.GetUtcNow();
+
+        var generated = items
+            .Where(x => x.Options.Count >= 4)
+            .Select(x => new GeneratedSentence(
+                x.WordId,
+                x.Word,
+                x.Sentence,
+                x.Answer,
+                x.AlternativeAnswers,
+                x.TranslationZh,
+                x.Pattern,
+                x.GrammarNote,
+                x.Options,
+                model,
+                now))
+            .ToList();
+
+        if (generated.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            await _generatedSentences
+                .AddAsync(generated, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "保存在线生成的例句到本地库失败。");
         }
     }
 
