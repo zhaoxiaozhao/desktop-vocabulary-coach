@@ -1,4 +1,4 @@
-# 静态官网（Cloudflare Pages）
+﻿# 静态官网（Cloudflare Pages）
 
 纯静态站点：无构建步骤、无第三方脚本、无外链字体。直接部署 `site/` 目录即可。
 
@@ -11,7 +11,7 @@
 - 下载地址：
 
 ```text
-https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe
+https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.9.0/DesktopVocabularyCoach-Setup-0.9.0.exe
 ```
 
 > 中国大陆访问 GitHub Releases 可能较慢或被阻断。面向大陆买家销售时，建议同时把安装包
@@ -23,11 +23,11 @@ https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.
 
 ```js
 window.VOCAB_CONFIG = {
-  version: "0.8.2",
+  version: "0.9.0",
   size: "54.1 MB",
   sha256: "…",
-  downloadUrl: "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe",
-  updatedAt: "2026-11-16",
+  downloadUrl: "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.9.0/DesktopVocabularyCoach-Setup-0.9.0.exe",
+  updatedAt: "2026-11-18",
 };
 ```
 
@@ -35,19 +35,19 @@ window.VOCAB_CONFIG = {
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\update-site-config.ps1 `
-  -DownloadUrl "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.8.2/DesktopVocabularyCoach-Setup-0.8.2.exe"
+  -DownloadUrl "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/download/v0.9.0/DesktopVocabularyCoach-Setup-0.9.0.exe"
 ```
 
 ## 为什么安装包不能放在 Pages
 
-Cloudflare Pages 限制**单文件 25 MiB**（Free/Pro/Business 相同），当前安装包约 56 MB。
+Cloudflare Pages 限制**单文件 25 MiB**（Free/Pro/Business 相同），当前安装包约 54 MB。
 Cloudflare 官方建议把大文件放到 **R2 公共桶**，页面再从 R2 下载。
 
 可选方案：
 
 1. **Cloudflare R2（推荐）**
    - 创建 Bucket，例如 `vocabulary-coach-downloads`。
-   - 上传 `artifacts/installer/DesktopVocabularyCoach-Setup-0.8.2.exe`。
+   - 上传 `artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`。
    - 在 Bucket → Settings → Public access 开启 `r2.dev` 公共地址，或绑定自定义域名
      （例如 `download.example.com`）。
    - 把公开 URL 填入 `config.js` 的 `downloadUrl`。
@@ -73,7 +73,7 @@ Cloudflare 官方建议把大文件放到 **R2 公共桶**，页面再从 R2 下
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1 `
-  -DownloadUrl "https://download.example.com/DesktopVocabularyCoach-Setup-0.8.2.exe"
+  -DownloadUrl "https://download.example.com/DesktopVocabularyCoach-Setup-0.9.0.exe"
 ```
 
 脚本会在 `downloadUrl` 为空、或本地安装包 SHA256 与 `config.js` 不一致时直接中止，
