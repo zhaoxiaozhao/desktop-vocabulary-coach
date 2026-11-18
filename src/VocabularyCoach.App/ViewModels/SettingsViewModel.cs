@@ -530,6 +530,14 @@ public sealed partial class SettingsViewModel : ObservableObject
                 keySaved = false;
             }
 
+            // 刷新下拉框显示的名称与「停用」后缀，同时保持当前选中项。
+            var activeId = selectedConnection?.Id ?? SelectedAiConnectionId;
+            RefreshConnectionOptions();
+            if (!string.IsNullOrWhiteSpace(activeId))
+            {
+                SelectedAiConnectionId = activeId;
+            }
+
             _themeService.Apply(Theme);
 
             var startupError = false;
