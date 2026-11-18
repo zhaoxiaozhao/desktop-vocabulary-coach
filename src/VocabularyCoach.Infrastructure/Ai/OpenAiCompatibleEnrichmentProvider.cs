@@ -66,6 +66,8 @@ public sealed class OpenAiCompatibleEnrichmentProvider : IVocabularyEnrichmentPr
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.ApiKey);
         }
 
+        OpenCodeRequestHeaders.Apply(message, request.BaseUrl);
+
         try
         {
             using var response = await _httpClient

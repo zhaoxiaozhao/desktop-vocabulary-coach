@@ -16,6 +16,7 @@ public enum AiPreset
     SiliconFlow = 8,
     Custom = 9,
     Mock = 10,
+    OpenCodeGo = 11,
 }
 
 /// <summary>Provider 预设信息（默认 Base URL 与模型仅作初值，可修改）。</summary>
@@ -35,6 +36,7 @@ public static class AiPresetCatalog
         new(AiPreset.Zhipu, "智谱 GLM", "https://open.bigmodel.cn/api/paas/v4", "glm-4-flash"),
         new(AiPreset.SiliconFlow, "SiliconFlow 硅基流动", "https://api.siliconflow.cn/v1", "Qwen/Qwen2.5-7B-Instruct"),
         new(AiPreset.Custom, "自定义（OpenAI-compatible）", string.Empty, string.Empty),
+        new(AiPreset.OpenCodeGo, "OpenCode Go（需订阅）", "https://opencode.ai/inference/go/v1", "glm-5.3-flash"),
         new(AiPreset.Mock, "Mock（离线示例，无需 Key）", string.Empty, "mock"),
     ];
 

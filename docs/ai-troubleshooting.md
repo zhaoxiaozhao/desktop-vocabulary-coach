@@ -125,3 +125,21 @@ Base URL：https://open.bigmodel.cn/api/paas/v4
 - 推理模型也能翻译，但延迟更高；日常建议使用 `deepseek-chat`、`glm-4-flash`
   或其他非推理模型。
 - 译文预览里的英文可以直接修改，再点「替换原文」。
+
+## 11. OpenCode Go
+
+OpenCode Go 是订阅套餐，可在设置 → AI 选择「OpenCode Go（需订阅）」：
+
+```text
+Base URL：https://opencode.ai/inference/go/v1
+模型：glm-5.3-flash / kimi-k3 / deepseek-v4.1-flash（以 /v1/models 为准）
+API Key：OpenCode Console 里 Go 套餐的 Key
+```
+
+- 应用会为 Go 端点自动附加 `x-opencode-session` 和 `User-Agent`，否则服务端返回
+  `400 MissingSessionID`。
+- OpenCode 的 `*-free` 模型仍然只允许 OpenCode 客户端调用，不能在这里使用。
+- Go 面向 coding agent 流量，官方会监控滥用；本应用只建议低频使用，长期使用请改用
+  Console 按量付费或智谱/本地模型。
+- 若返回 402：Check Console 余额；Go 只覆盖 Go 端点，不覆盖 `inference/openai/v1`
+  的按量付费请求。

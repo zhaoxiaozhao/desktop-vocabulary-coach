@@ -198,7 +198,7 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 - **AI 可选增强（Sprint 6）**：
   - `IVocabularyEnrichmentProvider` 抽象 + 离线 Mock + OpenAI-compatible 实现。
   - 内置中美主流服务预设：OpenAI、Anthropic、Gemini、DeepSeek、Moonshot Kimi、阿里通义千问、
-    智谱 GLM、SiliconFlow，以及自定义 Base URL；模型名称可改。
+    智谱 GLM、SiliconFlow、OpenCode Go，以及自定义 Base URL；模型名称可改。
   - **多连接（0.9.0 增量）**：可保存多个「服务商 + Base URL + 模型 + 句子模型 + Key」连接，
     设置页可新增、删除、重命名与切换；每个连接独立保存 DPAPI 加密 Key（`ai.<连接Id>.key`），
     旧版单连接自动迁移为「默认连接」。
@@ -411,7 +411,7 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
 - **Auto 模式**：按连接列表顺序尝试启用的连接，401/402/429/超时自动换下一个；
   全部失败才回退本地/离线。
 - 服务商预设：OpenAI、Anthropic、Gemini、DeepSeek、Moonshot Kimi、阿里通义千问、智谱 GLM、
-  SiliconFlow、自定义（任意 OpenAI-compatible Base URL）、Mock（离线演示）。
+  SiliconFlow、OpenCode Go（需订阅）、自定义（任意 OpenAI-compatible Base URL）、Mock（离线演示）。
 - 需要填写 Base URL、模型名称与 API Key；「测试连接」会用 `resilient` 发起一次真实请求。
 - 测试连接优先使用输入框中的 Key；测试已保存的 Key 时请先清空输入框。
 - 推理模型（GLM-5.3、DeepSeek R1、o1/o3 等）需要更大的 `max_tokens`；0.9.0 已把卡片增强上限调到

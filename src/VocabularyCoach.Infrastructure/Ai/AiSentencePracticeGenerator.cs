@@ -156,6 +156,8 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
         }
 
+        OpenCodeRequestHeaders.Apply(message, url);
+
         try
         {
             using var response = await _httpClient

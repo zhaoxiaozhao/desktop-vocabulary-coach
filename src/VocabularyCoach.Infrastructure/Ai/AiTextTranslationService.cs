@@ -143,6 +143,7 @@ public sealed class AiTextTranslationService : ITextTranslationService
             Content = JsonContent.Create(payload),
         };
         message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        OpenCodeRequestHeaders.Apply(message, url);
 
         try
         {
