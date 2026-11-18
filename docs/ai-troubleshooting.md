@@ -79,3 +79,12 @@ Base URL：https://open.bigmodel.cn/api/paas/v4
 - 生成结果保存在 `%LocalAppData%\DesktopVocabularyCoach\sentences.generated.json`。
 - 句子练习优先使用已生成句子；词卡弹出时也会显示生成例句。
 - 推理模型（GLM-5.3 等）不适合批量生成，后台会跳过；请把「句子练习模型」填 `glm-4-flash`。
+
+## 7. 中文翻译里出现 `__`
+
+部分模型会把英文空格原样翻译成 `__`。0.9.0 已处理：
+
+- Prompt 明确要求翻译“填入答案后的完整句子”
+- 若仍出现 `__`，用该词的中文释义自动替换
+- 无法修复的条目会被过滤，不再进入句子练习/例句库
+- 已存在的坏条目在读取时会跳过；可删除 `sentences.generated.json` 重新生成

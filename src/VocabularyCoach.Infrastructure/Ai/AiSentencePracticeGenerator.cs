@@ -24,7 +24,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         - word: the target dictionary word
         - sentence: a natural spoken sentence with exactly one blank written as ____
         - answer: the word/phrase that fills the blank, grammatically correct
-        - translationZh: natural Chinese translation
+        - translationZh: complete natural Chinese translation of the sentence AFTER filling in the answer; never use ____, ___, or omit the answer's meaning
         - pattern: the fixed expression or grammar point, e.g. "look forward to doing"
         - grammarNote: concise Chinese explanation (<= 60 Chinese characters)
         - distractors: exactly 3 alternative answers that fit the same grammatical slot but are wrong
@@ -235,7 +235,9 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
 
                 var sentence = NormalizeSentence(GetString(element, "sentence"));
                 var answer = GetString(element, "answer")?.Trim();
-                var translation = GetString(element, "translationZh")?.Trim();
+                var translation = SanitizeTranslation(
+                    GetString(element, "translationZh")?.Trim(),
+                    card);
                 var pattern = GetString(element, "pattern")?.Trim();
                 var grammarNote = GetString(element, "grammarNote")?.Trim();
                 var distractors = GetStrings(element, "distractors");
@@ -282,6 +284,31 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
             _logger.LogWarning(ex, "AI 句子响应 JSON 解析失败。");
             return [];
         }
+    }
+
+    private static string? SanitizeTranslation(string? translation, WordCard card)
+    {
+        if (string.IsNullOrWhiteSpace(translation))
+        {
+            return null;
+        }
+
+        if (!translation.Contains('_'))
+        {
+            return translation;
+        }
+
+        var meaning = card.PrimaryDefinition?.DefinitionZh?
+            .Split(['；', ';', '/'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(meaning))
+        {
+            return null;
+        }
+
+        var repaired = Regex.Replace(translation, "_{2,}", meaning);
+        return repaired.Contains('_') ? null : repaired;
     }
 
     private static string? NormalizeSentence(string? sentence)

@@ -34,6 +34,14 @@ public class JsonGeneratedSentenceStoreTests
 
             await store.AddAsync([sentence, sentence]);
             await store.AddAsync([sentence with { Sentence = "Can I ask you a ____?" }]);
+            await store.AddAsync(
+            [
+                sentence with
+                {
+                    Sentence = "Bad ____ translation.",
+                    TranslationZh = "坏的__翻译。",
+                },
+            ]);
 
             Assert.Equal(2, await store.CountForWordAsync(1));
             Assert.Equal(2, await store.CountSinceAsync(DateTimeOffset.UtcNow.AddDays(-1)));

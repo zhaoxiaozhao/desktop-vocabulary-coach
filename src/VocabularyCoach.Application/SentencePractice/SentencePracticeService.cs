@@ -75,6 +75,8 @@ public sealed class SentencePracticeService : ISentencePracticeService
         {
             if (sentence.Options is not { Count: >= 4 }
                 || string.IsNullOrWhiteSpace(sentence.Word)
+                || string.IsNullOrWhiteSpace(sentence.TranslationZh)
+                || sentence.TranslationZh.Contains('_')
                 || !usedWords.Add(sentence.Word))
             {
                 continue;

@@ -107,7 +107,8 @@ public sealed class JsonGeneratedSentenceStore : IGeneratedSentenceStore
             {
                 if (string.IsNullOrWhiteSpace(sentence.Sentence)
                     || string.IsNullOrWhiteSpace(sentence.Answer)
-                    || sentence.Options is not { Count: >= 4 })
+                    || sentence.Options is not { Count: >= 4 }
+                    || TranslationHasBlank(sentence.TranslationZh))
                 {
                     continue;
                 }
@@ -127,6 +128,9 @@ public sealed class JsonGeneratedSentenceStore : IGeneratedSentenceStore
             return Task.CompletedTask;
         }
     }
+
+    private static bool TranslationHasBlank(string? translation) =>
+        translation?.Contains('_') == true;
 
     private void Save()
     {
@@ -174,7 +178,8 @@ public sealed class JsonGeneratedSentenceStore : IGeneratedSentenceStore
                 .Where(x => x is not null
                             && !string.IsNullOrWhiteSpace(x.Sentence)
                             && !string.IsNullOrWhiteSpace(x.Answer)
-                            && x.Options is { Count: >= 4 })
+                            && x.Options is { Count: >= 4 }
+                            && !TranslationHasBlank(x.TranslationZh))
                 .ToList();
         }
         catch (Exception ex)
