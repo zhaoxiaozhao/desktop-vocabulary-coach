@@ -126,6 +126,12 @@ public sealed class AiEnrichmentService : IAiEnrichmentService
             return new AiTestResult(false, "尚未配置 API Key。");
         }
 
+        var mismatch = DescribeKeyMismatch(settings.AiBaseUrl, apiKey);
+        if (mismatch is not null)
+        {
+            return new AiTestResult(false, mismatch);
+        }
+
         var card = new WordCard
         {
             Word = "resilient",
@@ -142,6 +148,34 @@ public sealed class AiEnrichmentService : IAiEnrichmentService
                 + "常见原因：Key 与服务商不匹配、Base URL/模型名错误、余额不足，"
                 + "或免费模型只允许官方客户端使用。日志中有 HTTP 状态码。")
             : new AiTestResult(true, $"连接成功：模型返回了有效内容（{settings.AiModel}）。");
+    }
+
+    private static string? DescribeKeyMismatch(string baseUrl, string apiKey)
+    {
+        var url = baseUrl.ToLowerInvariant();
+
+        if (url.Contains("bigmodel.cn")
+            && apiKey.StartsWith("sk-", StringComparison.OrdinalIgnoreCase))
+        {
+            return "当前 Base URL 是智谱 GLM，但 API Key 以 sk- 开头（DeepSeek/OpenAI 格式）。"
+                + "请把服务商切换为 DeepSeek，Base URL 改为 https://api.deepseek.com/v1，模型改为 deepseek-chat。";
+        }
+
+        if (url.Contains("deepseek.com")
+            && !apiKey.StartsWith("sk-", StringComparison.OrdinalIgnoreCase))
+        {
+            return "当前 Base URL 是 DeepSeek，但 API Key 不是 sk- 格式。"
+                + "请确认粘贴的是 DeepSeek 平台创建的 API Key。";
+        }
+
+        if (apiKey.StartsWith("oc_", StringComparison.OrdinalIgnoreCase)
+            && !url.Contains("opencode.ai"))
+        {
+            return "这个 Key 是 OpenCode 格式（oc_），但当前 Base URL 不是 OpenCode。"
+                + "请把服务商/Base URL 切换为 OpenCode，或换成对应服务商的 Key。";
+        }
+
+        return null;
     }
 
     private async Task<WordEnrichment?> GenerateAsync(

@@ -497,6 +497,10 @@
                                    TextWrapping="Wrap" />
                         <TextBlock Margin="0,4,0,0"
                                    Style="{StaticResource CaptionText}"
+                                   Text="Key 必须与服务商/Base URL 匹配（智谱 id.secret，DeepSeek/OpenAI 以 sk- 开头）。"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Style="{StaticResource CaptionText}"
                                    Text="{Binding ApiKeyStatus}" />
 
                         <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
