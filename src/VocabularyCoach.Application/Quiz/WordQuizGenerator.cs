@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Recommendation;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Entities;
 
@@ -138,17 +139,20 @@ public sealed class QuizWordCardSource : IWordCardSource
 {
     private readonly WordRecommendationService _inner;
     private readonly IWordQuizGenerator _quizGenerator;
+    private readonly IGeneratedSentenceStore _generatedSentences;
     private readonly ISettingsService _settings;
     private readonly ILogger<QuizWordCardSource> _logger;
 
     public QuizWordCardSource(
         WordRecommendationService inner,
         IWordQuizGenerator quizGenerator,
+        IGeneratedSentenceStore generatedSentences,
         ISettingsService settings,
         ILogger<QuizWordCardSource> logger)
     {
         _inner = inner;
         _quizGenerator = quizGenerator;
+        _generatedSentences = generatedSentences;
         _settings = settings;
         _logger = logger;
     }
@@ -159,6 +163,25 @@ public sealed class QuizWordCardSource : IWordCardSource
         if (card is null)
         {
             return null;
+        }
+
+        if (card.Enrichment is null && card.Id > 0)
+        {
+            var generated = await _generatedSentences
+                .GetRandomForWordAsync(card.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (generated is not null)
+            {
+                card = card with
+                {
+                    Enrichment = new WordEnrichment(
+                        generated.ExampleSentence,
+                        generated.TranslationZh,
+                        generated.GrammarNote,
+                        ConfusableNote: null),
+                };
+            }
         }
 
         var mode = _settings.Current.InteractionMode;

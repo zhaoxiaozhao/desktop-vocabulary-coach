@@ -244,7 +244,7 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 0.9.0 增量：30 天全功能试用、离线 ECDSA 激活码、自动检查更新与静默升级、看义选词（反向选择题）、句子填空与语法练习。
 - 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 GitHub Releases + 阿里云 OSS 镜像；
   `tools/deploy-site.ps1` 校验下载地址与 SHA256 后一键部署。
-- 全解决方案 226 个自动化测试通过（Core 33 + Application 150 + Infrastructure 43）。
+- 全解决方案 228 个自动化测试通过（Core 33 + Application 151 + Infrastructure 44）。
 - 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
 - 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
 
@@ -263,6 +263,10 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
   作答后显示答案、固定句式与语法说明，结果写入 SM-2。
 - 句子优先由 AI 批量生成，AI 关闭/失败时回退 `Seed/sentences.seed.json` 离线句库（约 70 条）；
   AI 失败后冷却 10 分钟，并在窗口底部提示已回退离线。
+- 后台生成：AI 开启且电脑空闲（默认 5 分钟）时，按每天 1–6 组、每组 1–10 句生成；
+  结果持久化到 `sentences.generated.json`，句子练习优先使用，词卡弹出时也会展示生成例句。
+- 支持独立「句子练习模型」；后台生成跳过推理模型，失败后冷却 30 分钟。
+- 新增 JSON 例句库、后台生成协调器、句子练习优先读取生成库与设置持久化测试。
 - 新增离线句库校验、句子会话、AI 回退、答案归一化与复习落库测试。
 - 新增许可证、试用到期、时钟回拨、ECDSA 验签、更新清单验签与 DPAPI 存储测试。
 

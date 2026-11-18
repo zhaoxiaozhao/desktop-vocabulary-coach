@@ -173,6 +173,36 @@ public class SentencePracticeServiceTests
         Assert.Empty(session.AiMessage ?? string.Empty);
     }
 
+    [Fact]
+    public async Task CreateSession_UsesPersistedGeneratedSentences()
+    {
+        var generated = new FakeGeneratedSentenceStore(
+        [
+            new GeneratedSentence(
+                1,
+                "favor",
+                "Could you do me a ____?",
+                "favor",
+                [],
+                "你能帮我个忙吗？",
+                "do sb a favor",
+                "favor 作名词。",
+                ["favor", "case", "matter", "problem"],
+                "glm-4-flash",
+                Now),
+        ]);
+        var service = CreateService(aiEnabled: false, generatedStore: generated);
+
+        var session = await service.CreateSessionAsync(10);
+
+        Assert.True(session.AiUsed);
+        var favor = session.Items.Single(x => x.Word == "favor");
+        Assert.True(favor.FromAi);
+        Assert.Equal("favor", favor.Answer);
+        var afford = session.Items.Single(x => x.Word == "afford");
+        Assert.False(afford.FromAi);
+    }
+
     private static SentencePracticeService CreateService(
         RecordingLearningStore? store = null,
         bool aiEnabled = false,
@@ -180,7 +210,8 @@ public class SentencePracticeServiceTests
         ISentenceBank? bank = null,
         FakeTimeProvider? timeProvider = null,
         string aiModel = "glm-4-flash",
-        string sentencePracticeModel = "")
+        string sentencePracticeModel = "",
+        IGeneratedSentenceStore? generatedStore = null)
     {
         var settings = new FakeSettingsService
         {
@@ -195,6 +226,7 @@ public class SentencePracticeServiceTests
         return new SentencePracticeService(
             new StubWordLibrary(),
             bank ?? new StubSentenceBank(),
+            generatedStore ?? new FakeGeneratedSentenceStore(),
             generator ?? new FakeSentenceGenerator(),
             settings,
             store ?? new RecordingLearningStore(),

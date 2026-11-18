@@ -45,6 +45,10 @@ public class SettingsServiceTests
                 AiBaseUrl = "https://api.deepseek.com/v1",
                 AiModel = "deepseek-chat",
                 SentencePracticeModel = "glm-4-flash",
+                SentenceGenerationEnabled = false,
+                SentenceGenerationRunsPerDay = 3,
+                SentenceGenerationBatchSize = 4,
+                SentenceGenerationIdleMinutes = 7,
                 CaptureEnabled = false,
                 CaptureSilentAdd = true,
                 CaptureShowNotification = false,
@@ -75,6 +79,10 @@ public class SettingsServiceTests
         Assert.Equal("https://api.deepseek.com/v1", second.Current.AiBaseUrl);
         Assert.Equal("deepseek-chat", second.Current.AiModel);
         Assert.Equal("glm-4-flash", second.Current.SentencePracticeModel);
+        Assert.False(second.Current.SentenceGenerationEnabled);
+        Assert.Equal(3, second.Current.SentenceGenerationRunsPerDay);
+        Assert.Equal(4, second.Current.SentenceGenerationBatchSize);
+        Assert.Equal(7, second.Current.SentenceGenerationIdleMinutes);
         Assert.False(second.Current.CaptureEnabled);
         Assert.True(second.Current.CaptureSilentAdd);
         Assert.False(second.Current.CaptureShowNotification);

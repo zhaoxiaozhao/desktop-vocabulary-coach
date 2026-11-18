@@ -76,6 +76,18 @@ public sealed class UserSettings
     /// <summary>句子练习专用模型；留空则跟随 AiModel。</summary>
     public string SentencePracticeModel { get; set; } = string.Empty;
 
+    /// <summary>电脑空闲时后台生成例句。</summary>
+    public bool SentenceGenerationEnabled { get; set; } = true;
+
+    /// <summary>每天最多后台生成几组。</summary>
+    public int SentenceGenerationRunsPerDay { get; set; } = 2;
+
+    /// <summary>每次生成多少句。</summary>
+    public int SentenceGenerationBatchSize { get; set; } = 5;
+
+    /// <summary>空闲多少分钟后才允许后台生成。</summary>
+    public int SentenceGenerationIdleMinutes { get; set; } = 5;
+
     public UserSettings Clone() => (UserSettings)MemberwiseClone();
 
     /// <summary>解析勿扰时段；格式错误时返回禁用。</summary>

@@ -19,6 +19,7 @@ using VocabularyCoach.Infrastructure.Diagnostics;
 using VocabularyCoach.Infrastructure.Licensing;
 using VocabularyCoach.Infrastructure.Persistence;
 using VocabularyCoach.Infrastructure.Repositories;
+using VocabularyCoach.Infrastructure.SentencePractice;
 using VocabularyCoach.Infrastructure.Statistics;
 using VocabularyCoach.Infrastructure.SystemIntegration;
 using VocabularyCoach.Infrastructure.Updates;
@@ -73,6 +74,9 @@ public static class InfrastructureServiceCollectionExtensions
             Path.Combine(AppContext.BaseDirectory, "Seed", "sentences.seed.json"),
             sp.GetRequiredService<ILogger<OfflineSentenceBank>>()));
         services.AddSingleton<ISentencePracticeGenerator, AiSentencePracticeGenerator>();
+        services.AddSingleton<IGeneratedSentenceStore>(sp => new JsonGeneratedSentenceStore(
+            Path.Combine(AppPaths.RootDirectory, "sentences.generated.json"),
+            sp.GetRequiredService<ILogger<JsonGeneratedSentenceStore>>()));
         services.Configure<UpdateOptions>(configuration.GetSection(UpdateOptions.SectionName));
         services.AddSingleton<IUpdateService, HttpUpdateService>();
 

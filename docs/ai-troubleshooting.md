@@ -67,6 +67,15 @@ App 里请使用付费模型（账户需有余额），或改用智谱 / 通义 
 服务商：智谱 GLM
 Base URL：https://open.bigmodel.cn/api/paas/v4
 模型：glm-4-flash（免费、快）
+句子练习模型：glm-4-flash
 ```
 
 保存 Key 后清空输入框，再点「测试连接」。
+
+## 6. 后台例句生成
+
+- 设置 → AI → 「电脑空闲时后台生成例句」。
+- 默认每天 2 组、每组 5 句，空闲 5 分钟后执行。
+- 生成结果保存在 `%LocalAppData%\DesktopVocabularyCoach\sentences.generated.json`。
+- 句子练习优先使用已生成句子；词卡弹出时也会显示生成例句。
+- 推理模型（GLM-5.3 等）不适合批量生成，后台会跳过；请把「句子练习模型」填 `glm-4-flash`。

@@ -74,6 +74,7 @@ public class QuizWordCardSourceTests
         var source = new QuizWordCardSource(
             CreateRecommender(library, settings),
             new FakeQuizGenerator { Quiz = SampleQuiz() },
+            new FakeGeneratedSentenceStore(),
             settings,
             NullLogger<QuizWordCardSource>.Instance);
 
@@ -97,6 +98,7 @@ public class QuizWordCardSourceTests
         return new QuizWordCardSource(
             CreateRecommender(library, settings),
             generator,
+            new FakeGeneratedSentenceStore(),
             settings,
             NullLogger<QuizWordCardSource>.Instance);
     }

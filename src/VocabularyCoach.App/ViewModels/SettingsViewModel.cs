@@ -183,6 +183,18 @@ public sealed partial class SettingsViewModel : ObservableObject
     private string _sentencePracticeModel = string.Empty;
 
     [ObservableProperty]
+    private bool _sentenceGenerationEnabled = true;
+
+    [ObservableProperty]
+    private int _sentenceGenerationRunsPerDay = 2;
+
+    [ObservableProperty]
+    private int _sentenceGenerationBatchSize = 5;
+
+    [ObservableProperty]
+    private int _sentenceGenerationIdleMinutes = 5;
+
+    [ObservableProperty]
     private string _apiKeyStatus = "未设置";
 
     [ObservableProperty]
@@ -232,6 +244,10 @@ public sealed partial class SettingsViewModel : ObservableObject
         AiBaseUrl = settings.AiBaseUrl;
         AiModel = settings.AiModel;
         SentencePracticeModel = settings.SentencePracticeModel;
+        SentenceGenerationEnabled = settings.SentenceGenerationEnabled;
+        SentenceGenerationRunsPerDay = settings.SentenceGenerationRunsPerDay;
+        SentenceGenerationBatchSize = settings.SentenceGenerationBatchSize;
+        SentenceGenerationIdleMinutes = settings.SentenceGenerationIdleMinutes;
     }
 
     /// <summary>窗口加载后刷新 API Key 状态（只显示是否已保存）。</summary>
@@ -306,6 +322,10 @@ public sealed partial class SettingsViewModel : ObservableObject
                 AiBaseUrl = AiBaseUrl,
                 AiModel = AiModel,
                 SentencePracticeModel = SentencePracticeModel.Trim(),
+                SentenceGenerationEnabled = SentenceGenerationEnabled,
+                SentenceGenerationRunsPerDay = Math.Clamp(SentenceGenerationRunsPerDay, 1, 6),
+                SentenceGenerationBatchSize = Math.Clamp(SentenceGenerationBatchSize, 1, 10),
+                SentenceGenerationIdleMinutes = Math.Clamp(SentenceGenerationIdleMinutes, 1, 120),
             };
 
             await _settingsService.SaveAsync(settings, CancellationToken.None);

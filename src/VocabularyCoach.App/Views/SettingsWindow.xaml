@@ -417,6 +417,40 @@
                                    Text="留空则跟随上面的模型；句子练习建议填 glm-4-flash（非推理模型，批量生成更快）。"
                                    TextWrapping="Wrap" />
 
+                        <CheckBox Margin="0,12,0,0"
+                                  Content="电脑空闲时后台生成例句（保存到离线库）"
+                                  IsChecked="{Binding SentenceGenerationEnabled}" />
+                        <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="每天" />
+                            <TextBox Width="52"
+                                     Margin="6,0"
+                                     Style="{StaticResource SearchTextBoxStyle}"
+                                     Text="{Binding SentenceGenerationRunsPerDay, UpdateSourceTrigger=LostFocus}" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="组，每组" />
+                            <TextBox Width="52"
+                                     Margin="6,0"
+                                     Style="{StaticResource SearchTextBoxStyle}"
+                                     Text="{Binding SentenceGenerationBatchSize, UpdateSourceTrigger=LostFocus}" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="句；空闲" />
+                            <TextBox Width="52"
+                                     Margin="6,0"
+                                     Style="{StaticResource SearchTextBoxStyle}"
+                                     Text="{Binding SentenceGenerationIdleMinutes, UpdateSourceTrigger=LostFocus}" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="分钟后生成" />
+                        </StackPanel>
+                        <TextBlock Margin="0,4,0,0"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="使用「句子练习模型」；AI 关闭时不会运行。生成结果保存在 sentences.generated.json，句子练习会优先使用。"
+                                   TextWrapping="Wrap" />
+
                         <TextBlock Margin="0,10,0,6"
                                    Style="{StaticResource BodyText}"
                                    Text="API Key（Windows DPAPI 加密保存，留空表示不修改）" />

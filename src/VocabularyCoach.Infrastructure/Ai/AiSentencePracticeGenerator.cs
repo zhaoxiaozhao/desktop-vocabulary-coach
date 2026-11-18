@@ -52,9 +52,7 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         CancellationToken cancellationToken = default)
     {
         var settings = _settings.Current;
-        var model = string.IsNullOrWhiteSpace(settings.SentencePracticeModel)
-            ? settings.AiModel
-            : settings.SentencePracticeModel.Trim();
+        var model = SentenceModelHelper.ResolveModel(settings);
 
         if (!settings.AiEnabled
             || settings.AiPreset == AiPreset.Mock

@@ -23,6 +23,7 @@ public sealed class SentencePracticeService : ISentencePracticeService
 
     private readonly IWordLibrary _wordLibrary;
     private readonly ISentenceBank _sentenceBank;
+    private readonly IGeneratedSentenceStore _generatedSentences;
     private readonly ISentencePracticeGenerator _aiGenerator;
     private readonly ISettingsService _settings;
     private readonly ILearningStore _learningStore;
@@ -36,6 +37,7 @@ public sealed class SentencePracticeService : ISentencePracticeService
     public SentencePracticeService(
         IWordLibrary wordLibrary,
         ISentenceBank sentenceBank,
+        IGeneratedSentenceStore generatedSentences,
         ISentencePracticeGenerator aiGenerator,
         ISettingsService settings,
         ILearningStore learningStore,
@@ -45,6 +47,7 @@ public sealed class SentencePracticeService : ISentencePracticeService
     {
         _wordLibrary = wordLibrary;
         _sentenceBank = sentenceBank;
+        _generatedSentences = generatedSentences;
         _aiGenerator = aiGenerator;
         _settings = settings;
         _learningStore = learningStore;
@@ -58,15 +61,56 @@ public sealed class SentencePracticeService : ISentencePracticeService
         CancellationToken cancellationToken = default)
     {
         var take = Math.Clamp(count, 1, MaxSessionSize);
+        var aiEnabled = _settings.Current.AiEnabled;
 
-        var entries = _sentenceBank.Entries
-            .GroupBy(x => x.Word, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.ElementAt(Random.Shared.Next(group.Count())))
-            .OrderBy(_ => Random.Shared.Next())
-            .Take(take)
-            .ToList();
+        // 优先使用后台已经生成并持久化的例句。
+        var generated = await _generatedSentences
+            .GetRandomAsync(take, cancellationToken)
+            .ConfigureAwait(false);
 
-        var items = new List<SentencePracticeItem>(entries.Count);
+        var items = new List<SentencePracticeItem>(take);
+        var usedWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var sentence in generated)
+        {
+            if (sentence.Options is not { Count: >= 4 }
+                || string.IsNullOrWhiteSpace(sentence.Word)
+                || !usedWords.Add(sentence.Word))
+            {
+                continue;
+            }
+
+            items.Add(new SentencePracticeItem(
+                sentence.WordId,
+                sentence.Word,
+                sentence.Sentence,
+                sentence.Answer,
+                sentence.AlternativeAnswers ?? [],
+                sentence.TranslationZh,
+                sentence.Pattern,
+                sentence.GrammarNote,
+                sentence.Options,
+                FromAi: true));
+
+            if (items.Count >= take)
+            {
+                break;
+            }
+        }
+
+        var generatedCount = items.Count;
+        var remaining = take - generatedCount;
+
+        var entries = remaining > 0
+            ? _sentenceBank.Entries
+                .Where(x => !usedWords.Contains(x.Word))
+                .GroupBy(x => x.Word, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.ElementAt(Random.Shared.Next(group.Count())))
+                .OrderBy(_ => Random.Shared.Next())
+                .Take(remaining)
+                .ToList()
+            : [];
+
         var cards = new List<WordCard>(entries.Count);
 
         foreach (var entry in entries)
@@ -110,10 +154,19 @@ public sealed class SentencePracticeService : ISentencePracticeService
                 FromAi: false));
         }
 
-        var aiEnabled = _settings.Current.AiEnabled;
-        if (cards.Count == 0)
+        if (items.Count == 0)
         {
-            return new SentencePracticeSession(items, aiEnabled, AiUsed: false, AiMessage: null);
+            return new SentencePracticeSession([], aiEnabled, AiUsed: false, AiMessage: null);
+        }
+
+        // 已经有后台生成的句子：直接使用，不再发起在线 AI 请求，避免重复消耗。
+        if (generatedCount > 0)
+        {
+            return new SentencePracticeSession(
+                items,
+                aiEnabled,
+                AiUsed: true,
+                AiMessage: null);
         }
 
         if (!aiEnabled)
@@ -121,11 +174,14 @@ public sealed class SentencePracticeService : ISentencePracticeService
             return new SentencePracticeSession(items, AiEnabled: false, AiUsed: false, AiMessage: null);
         }
 
-        var sentenceModel = string.IsNullOrWhiteSpace(_settings.Current.SentencePracticeModel)
-            ? _settings.Current.AiModel
-            : _settings.Current.SentencePracticeModel.Trim();
+        if (cards.Count == 0)
+        {
+            return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiMessage: null);
+        }
 
-        if (IsReasoningModel(sentenceModel))
+        var sentenceModel = SentenceModelHelper.ResolveModel(_settings.Current);
+
+        if (SentenceModelHelper.IsReasoningModel(sentenceModel))
         {
             return new SentencePracticeSession(
                 items,
@@ -186,17 +242,6 @@ public sealed class SentencePracticeService : ISentencePracticeService
             BeginAiCooldown(_timeProvider.GetUtcNow());
             return new SentencePracticeSession(items, AiEnabled: true, AiUsed: false, AiFallbackMessage);
         }
-    }
-
-    private static bool IsReasoningModel(string model)
-    {
-        var name = model.Trim().ToLowerInvariant();
-        return name.Contains("glm-5")
-            || name.Contains("glm-4.5")
-            || name.Contains("reasoner")
-            || name.Contains("deepseek-r1")
-            || name.StartsWith("o1")
-            || name.StartsWith("o3");
     }
 
     private bool IsAiCoolingDown(DateTimeOffset now)

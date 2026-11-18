@@ -33,6 +33,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<IAiEnrichmentService, AiEnrichmentService>();
         services.AddSingleton<IWordQuizGenerator, WordQuizGenerator>();
         services.AddSingleton<ISentencePracticeService, SentencePracticeService>();
+        services.AddSingleton<SentenceGenerationService>();
+        services.AddHostedService(sp => sp.GetRequiredService<SentenceGenerationService>());
         services.AddSingleton<WordCaptureService>();
         services.AddSingleton<IWordCaptureService>(sp => sp.GetRequiredService<WordCaptureService>());
         services.AddSingleton<WordRecommendationService>();
