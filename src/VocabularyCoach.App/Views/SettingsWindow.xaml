@@ -420,32 +420,64 @@
                         <CheckBox Margin="0,12,0,0"
                                   Content="电脑空闲时后台生成例句（保存到离线库）"
                                   IsChecked="{Binding SentenceGenerationEnabled}" />
-                        <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center"
+                        <Grid Margin="0,6,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="84" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="84" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"
                                        Style="{StaticResource BodyText}"
                                        Text="每天" />
-                            <TextBox Width="52"
-                                     Margin="6,0"
+                            <TextBox Grid.Row="0" Grid.Column="1"
+                                     Margin="0,0,8,0"
+                                     TextAlignment="Center"
                                      Style="{StaticResource SearchTextBoxStyle}"
-                                     Text="{Binding SentenceGenerationRunsPerDay, UpdateSourceTrigger=LostFocus}" />
-                            <TextBlock VerticalAlignment="Center"
+                                     Text="{Binding SentenceGenerationRunsPerDay, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="1–6 组" />
+                            <TextBlock Grid.Row="0" Grid.Column="2"
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"
                                        Style="{StaticResource BodyText}"
                                        Text="组，每组" />
-                            <TextBox Width="52"
-                                     Margin="6,0"
+                            <TextBox Grid.Row="0" Grid.Column="3"
+                                     Margin="0,0,8,0"
+                                     TextAlignment="Center"
                                      Style="{StaticResource SearchTextBoxStyle}"
-                                     Text="{Binding SentenceGenerationBatchSize, UpdateSourceTrigger=LostFocus}" />
-                            <TextBlock VerticalAlignment="Center"
+                                     Text="{Binding SentenceGenerationBatchSize, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="1–10 句" />
+                            <TextBlock Grid.Row="0" Grid.Column="4"
+                                       VerticalAlignment="Center"
                                        Style="{StaticResource BodyText}"
-                                       Text="句；空闲" />
-                            <TextBox Width="52"
-                                     Margin="6,0"
+                                       Text="句" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Margin="0,8,8,0"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="空闲" />
+                            <TextBox Grid.Row="1" Grid.Column="1"
+                                     Margin="0,8,8,0"
+                                     TextAlignment="Center"
                                      Style="{StaticResource SearchTextBoxStyle}"
-                                     Text="{Binding SentenceGenerationIdleMinutes, UpdateSourceTrigger=LostFocus}" />
-                            <TextBlock VerticalAlignment="Center"
+                                     Text="{Binding SentenceGenerationIdleMinutes, UpdateSourceTrigger=LostFocus}"
+                                     ToolTip="1–120 分钟" />
+                            <TextBlock Grid.Row="1" Grid.Column="2"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,8,0,0"
+                                       VerticalAlignment="Center"
                                        Style="{StaticResource BodyText}"
                                        Text="分钟后生成" />
-                        </StackPanel>
+                        </Grid>
                         <TextBlock Margin="0,4,0,0"
                                    Style="{StaticResource CaptionText}"
                                    Text="使用「句子练习模型」；AI 关闭时不会运行。生成结果保存在 sentences.generated.json，句子练习会优先使用。"
