@@ -149,10 +149,14 @@ dotnet run --project tools\LicenseTool -- manifest `
   "CheckIntervalHours": 24,
   "ManifestUrls": [
     "https://<bucket>.oss-cn-hangzhou.aliyuncs.com/updates/latest.json",
+    "https://github.com/zhaoxiaozhao/desktop-vocabulary-coach/releases/latest/download/latest.json",
     "https://raw.githubusercontent.com/zhaoxiaozhao/desktop-vocabulary-coach/main/updates/latest.json"
   ]
 }
 ```
+
+> 每次发版请把签名的 `latest.json` 作为 Release 资产一起上传；
+> `releases/latest/download/latest.json` 会始终指向最新 Release，适合作为 GitHub 兜底。
 
 按顺序尝试，OSS 放第一位（中国大陆更稳定），GitHub 作为兜底。
 
