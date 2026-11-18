@@ -272,6 +272,12 @@ public class EfLearningStoreTests
             string? apiKeyOverride,
             CancellationToken cancellationToken) =>
             Task.FromResult(new VocabularyCoach.Application.Ai.AiTestResult(false, "not configured"));
+
+        public Task<VocabularyCoach.Application.Ai.AiTestResult> TestAsync(
+            string? apiKeyOverride,
+            VocabularyCoach.Application.Settings.AiConnection connection,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(new VocabularyCoach.Application.Ai.AiTestResult(false, "not configured"));
     }
 
     private sealed class StaticSource : IWordCardSource

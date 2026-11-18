@@ -30,6 +30,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddSingleton<IReviewScheduler, Sm2ReviewScheduler>();
         services.AddSingleton<IAdaptiveDifficultyService, AdaptiveDifficultyService>();
         services.AddSingleton<IVocabularyEnrichmentProvider, MockVocabularyEnrichmentProvider>();
+        services.AddSingleton<IAiConnectionResolver, AiConnectionResolver>();
         services.AddSingleton<IAiEnrichmentService, AiEnrichmentService>();
         services.AddSingleton<IWordQuizGenerator, WordQuizGenerator>();
         services.AddSingleton<ISentencePracticeService, SentencePracticeService>();

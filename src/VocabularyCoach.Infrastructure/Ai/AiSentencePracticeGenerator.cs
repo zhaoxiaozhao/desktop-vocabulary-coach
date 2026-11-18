@@ -32,17 +32,17 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         """;
 
     private readonly ISettingsService _settings;
-    private readonly ISecretStore _secrets;
+    private readonly IAiConnectionResolver _resolver;
     private readonly ILogger<AiSentencePracticeGenerator> _logger;
     private readonly HttpClient _httpClient;
 
     public AiSentencePracticeGenerator(
         ISettingsService settings,
-        ISecretStore secrets,
+        IAiConnectionResolver resolver,
         ILogger<AiSentencePracticeGenerator> logger)
     {
         _settings = settings;
-        _secrets = secrets;
+        _resolver = resolver;
         _logger = logger;
         _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
     }
@@ -52,40 +52,79 @@ public sealed class AiSentencePracticeGenerator : ISentencePracticeGenerator
         CancellationToken cancellationToken = default)
     {
         var settings = _settings.Current;
-        var model = SentenceModelHelper.ResolveModel(settings);
-
-        if (!settings.AiEnabled
-            || settings.AiPreset == AiPreset.Mock
-            || string.IsNullOrWhiteSpace(settings.AiBaseUrl)
-            || string.IsNullOrWhiteSpace(model)
-            || cards.Count == 0)
+        if (!settings.AiEnabled || cards.Count == 0)
         {
             return [];
         }
 
         var selected = cards.Take(MaxWords).ToList();
-        var apiKey = await _secrets
-            .TryReadAsync(cancellationToken)
-            .ConfigureAwait(false) ?? string.Empty;
+        var candidates = await _resolver
+            .GetCandidatesAsync(settings, cancellationToken)
+            .ConfigureAwait(false);
 
-        var url = $"{settings.AiBaseUrl.TrimEnd('/')}/chat/completions";
-
-        // 推理模型（如 GLM-5.3）一次生成 10 句会把 token 全部花在 reasoning 上，
-        // 并且容易超过 60 秒。拆成每批 5 句并行请求，单批约 30 秒，成功率更高。
-        var batches = selected.Chunk(5).ToList();
-        var tasks = batches
-            .Select(batch => GenerateBatchAsync(url, model, apiKey, batch, cancellationToken))
-            .ToList();
-
-        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
-        var items = results.SelectMany(x => x).ToList();
-
-        if (items.Count > 0)
+        foreach (var candidate in candidates)
         {
-            _logger.LogInformation("AI 已生成 {Count} 条句子练习。", items.Count);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var connection = candidate.Connection;
+            if (connection.Preset == AiPreset.Mock
+                || string.IsNullOrWhiteSpace(connection.BaseUrl))
+            {
+                continue;
+            }
+
+            var model = string.IsNullOrWhiteSpace(connection.SentencePracticeModel)
+                ? connection.Model
+                : connection.SentencePracticeModel.Trim();
+
+            if (string.IsNullOrWhiteSpace(model)
+                || SentenceModelHelper.IsReasoningModel(model))
+            {
+                _logger.LogInformation(
+                    "连接 {Name} 的句子模型 {Model} 是推理模型或为空，跳过句子批量生成。",
+                    connection.Name,
+                    model);
+                continue;
+            }
+
+            var url = $"{connection.BaseUrl.TrimEnd('/')}/chat/completions";
+
+            // 推理模型一次生成 10 句会把 token 全部花在 reasoning 上，
+            // 因此每批 5 句并行请求，单批约 30 秒。
+            var batches = selected.Chunk(5).ToList();
+            var tasks = batches
+                .Select(batch => GenerateBatchAsync(
+                    url,
+                    model,
+                    candidate.ApiKey,
+                    batch,
+                    cancellationToken))
+                .ToList();
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            var items = results.SelectMany(x => x).ToList();
+
+            if (items.Count > 0)
+            {
+                _logger.LogInformation(
+                    "AI 已生成 {Count} 条句子练习（连接 {Name}，模型 {Model}）。",
+                    items.Count,
+                    connection.Name,
+                    model);
+                return items;
+            }
+
+            _logger.LogWarning(
+                "连接 {Name} 未生成有效句子，尝试下一个连接。",
+                connection.Name);
+
+            if (!settings.AiAutoMode)
+            {
+                break;
+            }
         }
 
-        return items;
+        return [];
     }
 
     private async Task<IReadOnlyList<SentencePracticeItem>> GenerateBatchAsync(

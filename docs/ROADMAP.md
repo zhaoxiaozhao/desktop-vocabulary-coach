@@ -244,7 +244,7 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 0.9.0 增量：30 天全功能试用、离线 ECDSA 激活码、自动检查更新与静默升级、看义选词（反向选择题）、句子填空与语法练习。
 - 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 GitHub Releases + 阿里云 OSS 镜像；
   `tools/deploy-site.ps1` 校验下载地址与 SHA256 后一键部署。
-- 全解决方案 228 个自动化测试通过（Core 33 + Application 151 + Infrastructure 44）。
+- 全解决方案 232 个自动化测试通过（Core 33 + Application 154 + Infrastructure 45）。
 - 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
 - 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
 
@@ -269,6 +269,10 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 新增 JSON 例句库、后台生成协调器、句子练习优先读取生成库与设置持久化测试。
 - 新增离线句库校验、句子会话、AI 回退、答案归一化与复习落库测试。
 - 新增许可证、试用到期、时钟回拨、ECDSA 验签、更新清单验签与 DPAPI 存储测试。
+- 新增多 AI 连接：每个连接独立「服务商 + Base URL + 模型 + 句子模型 + Key」，
+  设置页可新增/删除/切换；旧版单连接与 `ai.key` 自动迁移为「默认连接」。
+- 新增 Auto 模式：按列表顺序尝试启用的连接，401/402/403/429/超时/空结果自动回退；
+  手动模式只使用选中连接。新增连接解析、Auto 回退与按连接 DPAPI 存储测试。
 
 ### 0.8.x 增量：生词捕获与词库扩充
 

@@ -379,6 +379,55 @@
 
                         <TextBlock Margin="0,10,0,6"
                                    Style="{StaticResource BodyText}"
+                                   Text="连接" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox Grid.Column="0"
+                                      Width="300"
+                                      HorizontalAlignment="Left"
+                                      ItemsSource="{Binding AiConnectionOptions}"
+                                      SelectedValue="{Binding SelectedAiConnectionId}"
+                                      SelectedValuePath="Id">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding AddAiConnectionCommand}"
+                                    Content="新增"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                            <Button Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding DeleteAiConnectionCommand}"
+                                    Content="删除"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                        </Grid>
+
+                        <CheckBox Margin="0,8,0,0"
+                                  Content="自动模式：按列表顺序尝试启用的连接"
+                                  IsChecked="{Binding AiAutoMode}" />
+                        <CheckBox Margin="0,6,0,0"
+                                  Content="启用当前连接"
+                                  IsChecked="{Binding SelectedAiConnectionEnabled}" />
+
+                        <TextBlock Margin="0,10,0,6"
+                                   Style="{StaticResource BodyText}"
+                                   Text="连接名称" />
+                        <TextBox Width="300"
+                                 HorizontalAlignment="Left"
+                                 Style="{StaticResource SearchTextBoxStyle}"
+                                 Text="{Binding SelectedAiConnectionName, UpdateSourceTrigger=LostFocus}" />
+
+                        <TextBlock Margin="0,10,0,6"
+                                   Style="{StaticResource BodyText}"
                                    Text="服务商（OpenAI-compatible，兼容中美主流服务）" />
                         <ComboBox Width="320"
                                   HorizontalAlignment="Left"

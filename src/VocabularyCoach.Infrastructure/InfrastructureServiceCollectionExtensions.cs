@@ -61,6 +61,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<ISecretStore>(sp => new DpapiSecretStore(
             Path.Combine(AppPaths.RootDirectory, "ai.key"),
             sp.GetRequiredService<ILogger<DpapiSecretStore>>()));
+        services.AddSingleton<IAiKeyStore>(sp => new DpapiAiKeyStore(
+            AppPaths.RootDirectory,
+            Path.Combine(AppPaths.RootDirectory, "ai.key"),
+            sp.GetRequiredService<ILogger<DpapiAiKeyStore>>()));
         services.AddSingleton<DatabaseInitializer>();
         services.AddSingleton<IAudioPronouncer, SystemSpeechPronouncer>();
         services.AddSingleton<ISystemStateMonitor, WindowsSystemStateMonitor>();

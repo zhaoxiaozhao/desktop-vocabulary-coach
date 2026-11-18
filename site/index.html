@@ -103,7 +103,7 @@
         <article class="feature">
           <span class="icon">🤖</span>
           <h3>AI 可选增强</h3>
-          <p>支持 OpenAI、Anthropic、Gemini、DeepSeek、Moonshot、通义千问、智谱等兼容接口；关闭时核心功能完全离线。</p>
+          <p>支持 OpenAI、Anthropic、Gemini、DeepSeek、Moonshot、通义千问、智谱等兼容接口；可保存多个连接，手动切换或 Auto 自动回退。关闭时核心功能完全离线。</p>
         </article>
         <article class="feature">
           <span class="icon">🔒</span>
@@ -193,7 +193,7 @@
       <div class="notice">
         <strong>数据位置：</strong>
         <code>%LocalAppData%\DesktopVocabularyCoach\vocabulary.db</code>
-        · 日志在 <code>logs\</code>，AI Key 在 <code>ai.key</code>（DPAPI 加密）。
+        · 日志在 <code>logs\</code>，AI Key 按连接加密保存为 <code>ai.&lt;连接Id&gt;.key</code>（DPAPI）。
         卸载只删除程序文件与快捷方式，学习数据默认保留。
       </div>
     </section>

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -23,9 +24,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     private readonly ThemeService _themeService;
     private readonly VocabularyCoach.Application.Adaptive.IAdaptiveDifficultyService _adaptiveDifficulty;
     private readonly IAiEnrichmentService _aiEnrichment;
-    private readonly ISecretStore _secretStore;
+    private readonly IAiKeyStore _keyStore;
     private readonly VocabularyCoach.Application.Abstractions.ISystemStartupManager _startupManager;
     private readonly ILogger<SettingsViewModel> _logger;
+    private readonly List<AiConnection> _connections = [];
+    private bool _isLoadingConnections;
+    private string _editingConnectionId = string.Empty;
 
     public SettingsViewModel(
         ISettingsService settingsService,
@@ -33,7 +37,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         ThemeService themeService,
         VocabularyCoach.Application.Adaptive.IAdaptiveDifficultyService adaptiveDifficulty,
         IAiEnrichmentService aiEnrichment,
-        ISecretStore secretStore,
+        IAiKeyStore keyStore,
         VocabularyCoach.Application.Abstractions.ISystemStartupManager startupManager,
         ILogger<SettingsViewModel> logger)
     {
@@ -42,7 +46,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _themeService = themeService;
         _adaptiveDifficulty = adaptiveDifficulty;
         _aiEnrichment = aiEnrichment;
-        _secretStore = secretStore;
+        _keyStore = keyStore;
         _startupManager = startupManager;
         _logger = logger;
 
@@ -194,6 +198,20 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _sentenceGenerationIdleMinutes = 5;
 
+    public ObservableCollection<AiConnectionOption> AiConnectionOptions { get; } = [];
+
+    [ObservableProperty]
+    private string _selectedAiConnectionId = string.Empty;
+
+    [ObservableProperty]
+    private string _selectedAiConnectionName = string.Empty;
+
+    [ObservableProperty]
+    private bool _aiAutoMode;
+
+    [ObservableProperty]
+    private bool _selectedAiConnectionEnabled = true;
+
     [ObservableProperty]
     private string _apiKeyStatus = "未设置";
 
@@ -240,14 +258,141 @@ public sealed partial class SettingsViewModel : ObservableObject
         AutoExpand = settings.AutoExpand;
         Animate = settings.Animate;
         AiEnabled = settings.AiEnabled;
-        SelectedAiPreset = settings.AiPreset;
-        AiBaseUrl = settings.AiBaseUrl;
-        AiModel = settings.AiModel;
-        SentencePracticeModel = settings.SentencePracticeModel;
+        AiAutoMode = settings.AiAutoMode;
+
+        AiConnectionSettings.Ensure(settings);
+        _connections.Clear();
+        _connections.AddRange(settings.AiConnections.Select(x => x.Clone()));
+        RefreshConnectionOptions();
+
+        _isLoadingConnections = true;
+        SelectedAiConnectionId = settings.ActiveAiConnectionId;
+        _editingConnectionId = SelectedAiConnectionId;
+        _isLoadingConnections = false;
+
+        var active = SelectedConnection;
+        if (active is not null)
+        {
+            LoadConnectionFields(active);
+        }
+
         SentenceGenerationEnabled = settings.SentenceGenerationEnabled;
         SentenceGenerationRunsPerDay = settings.SentenceGenerationRunsPerDay;
         SentenceGenerationBatchSize = settings.SentenceGenerationBatchSize;
         SentenceGenerationIdleMinutes = settings.SentenceGenerationIdleMinutes;
+    }
+
+    private void RefreshConnectionOptions()
+    {
+        AiConnectionOptions.Clear();
+        foreach (var connection in _connections)
+        {
+            var suffix = connection.Enabled ? string.Empty : "（停用）";
+            AiConnectionOptions.Add(new AiConnectionOption(
+                connection.Id,
+                connection.Name + suffix));
+        }
+    }
+
+    private AiConnection? SelectedConnection =>
+        _connections.FirstOrDefault(x => string.Equals(
+            x.Id,
+            SelectedAiConnectionId,
+            StringComparison.OrdinalIgnoreCase));
+
+    private void LoadConnectionFields(AiConnection connection)
+    {
+        SelectedAiConnectionName = connection.Name;
+        SelectedAiPreset = connection.Preset;
+        AiBaseUrl = connection.BaseUrl;
+        AiModel = connection.Model;
+        SentencePracticeModel = connection.SentencePracticeModel;
+        SelectedAiConnectionEnabled = connection.Enabled;
+    }
+
+    private void CommitCurrentFields()
+    {
+        var connection = _connections.FirstOrDefault(x => string.Equals(
+            x.Id,
+            _editingConnectionId,
+            StringComparison.OrdinalIgnoreCase));
+
+        if (connection is null)
+        {
+            return;
+        }
+
+        connection.Preset = SelectedAiPreset;
+        connection.BaseUrl = AiBaseUrl.Trim();
+        connection.Model = AiModel.Trim();
+        connection.SentencePracticeModel = SentencePracticeModel.Trim();
+        connection.Enabled = SelectedAiConnectionEnabled;
+        connection.Name = string.IsNullOrWhiteSpace(SelectedAiConnectionName)
+            ? connection.Name
+            : SelectedAiConnectionName.Trim();
+    }
+
+    partial void OnSelectedAiConnectionIdChanged(string value)
+    {
+        if (_isLoadingConnections)
+        {
+            return;
+        }
+
+        CommitCurrentFields();
+        _editingConnectionId = value;
+
+        var connection = SelectedConnection;
+        if (connection is null)
+        {
+            return;
+        }
+
+        LoadConnectionFields(connection);
+        PendingApiKey = string.Empty;
+        ClearApiKeyRequested = false;
+        _ = RefreshApiKeyStatusAsync();
+    }
+
+    [RelayCommand]
+    private void AddAiConnection()
+    {
+        CommitCurrentFields();
+
+        var preset = AiPresetCatalog.Get(AiPreset.OpenAi);
+        var connection = new AiConnection
+        {
+            Name = $"连接 {_connections.Count + 1}",
+            Preset = AiPreset.OpenAi,
+            BaseUrl = preset.BaseUrl,
+            Model = preset.DefaultModel,
+            Enabled = true,
+        };
+
+        _connections.Add(connection);
+        RefreshConnectionOptions();
+        SelectedAiConnectionId = connection.Id;
+    }
+
+    [RelayCommand]
+    private void DeleteAiConnection()
+    {
+        if (_connections.Count <= 1)
+        {
+            return;
+        }
+
+        CommitCurrentFields();
+        var selected = SelectedConnection;
+        if (selected is null)
+        {
+            return;
+        }
+
+        _connections.Remove(selected);
+        _ = _keyStore.DeleteAsync(selected.Id, CancellationToken.None);
+        RefreshConnectionOptions();
+        SelectedAiConnectionId = _connections[0].Id;
     }
 
     /// <summary>窗口加载后刷新 API Key 状态（只显示是否已保存）。</summary>
@@ -260,7 +405,11 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         try
         {
-            var key = await _secretStore.TryReadAsync(CancellationToken.None);
+            var connectionId = SelectedAiConnectionId;
+            var key = string.IsNullOrWhiteSpace(connectionId)
+                ? null
+                : await _keyStore.GetAsync(connectionId, CancellationToken.None);
+
             ApiKeyStatus = string.IsNullOrWhiteSpace(key)
                 ? "未设置 API Key（Mock 模式不需要）"
                 : "已保存 API Key（加密存储，不可查看）";
@@ -292,6 +441,20 @@ public sealed partial class SettingsViewModel : ObservableObject
 
         try
         {
+            var selectedConnection = SelectedConnection;
+            if (selectedConnection is not null)
+            {
+                selectedConnection.Preset = SelectedAiPreset;
+                selectedConnection.BaseUrl = AiBaseUrl.Trim();
+                selectedConnection.Model = AiModel.Trim();
+                selectedConnection.SentencePracticeModel = SentencePracticeModel.Trim();
+                selectedConnection.Enabled = SelectedAiConnectionEnabled;
+                if (!string.IsNullOrWhiteSpace(SelectedAiConnectionName))
+                {
+                    selectedConnection.Name = SelectedAiConnectionName.Trim();
+                }
+            }
+
             var settings = new UserSettings
             {
                 RemindersEnabled = RemindersEnabled,
@@ -326,6 +489,9 @@ public sealed partial class SettingsViewModel : ObservableObject
                 SentenceGenerationRunsPerDay = Math.Clamp(SentenceGenerationRunsPerDay, 1, 6),
                 SentenceGenerationBatchSize = Math.Clamp(SentenceGenerationBatchSize, 1, 10),
                 SentenceGenerationIdleMinutes = Math.Clamp(SentenceGenerationIdleMinutes, 1, 120),
+                AiConnections = _connections.Select(x => x.Clone()).ToList(),
+                ActiveAiConnectionId = selectedConnection?.Id ?? SelectedAiConnectionId,
+                AiAutoMode = AiAutoMode,
             };
 
             await _settingsService.SaveAsync(settings, CancellationToken.None);
@@ -341,14 +507,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
             try
             {
-                if (!string.IsNullOrWhiteSpace(PendingApiKey))
+                var keyConnectionId = selectedConnection?.Id ?? SelectedAiConnectionId;
+                if (!string.IsNullOrWhiteSpace(PendingApiKey)
+                    && !string.IsNullOrWhiteSpace(keyConnectionId))
                 {
-                    await _secretStore.SaveAsync(PendingApiKey, CancellationToken.None);
+                    await _keyStore.SetAsync(keyConnectionId, PendingApiKey, CancellationToken.None);
                 }
 
-                if (ClearApiKeyRequested)
+                if (ClearApiKeyRequested
+                    && !string.IsNullOrWhiteSpace(keyConnectionId))
                 {
-                    await _secretStore.ClearAsync(CancellationToken.None);
+                    await _keyStore.DeleteAsync(keyConnectionId, CancellationToken.None);
                 }
 
                 PendingApiKey = string.Empty;
@@ -502,8 +671,20 @@ public sealed partial class SettingsViewModel : ObservableObject
 
         try
         {
+            var connection = new AiConnection
+            {
+                Id = SelectedAiConnectionId,
+                Name = SelectedConnection?.Name ?? "当前连接",
+                Preset = SelectedAiPreset,
+                BaseUrl = AiBaseUrl.Trim(),
+                Model = AiModel.Trim(),
+                SentencePracticeModel = SentencePracticeModel.Trim(),
+                Enabled = SelectedAiConnectionEnabled,
+            };
+
             var result = await _aiEnrichment.TestAsync(
                 string.IsNullOrWhiteSpace(PendingApiKey) ? null : PendingApiKey,
+                connection,
                 CancellationToken.None);
 
             AiTestStatus = result.Message;

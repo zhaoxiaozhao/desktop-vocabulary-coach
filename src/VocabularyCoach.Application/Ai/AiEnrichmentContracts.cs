@@ -1,3 +1,4 @@
+using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Entities;
 
 namespace VocabularyCoach.Application.Ai;
@@ -43,6 +44,12 @@ public interface IAiEnrichmentService
     Task<WordEnrichment?> EnrichNowAsync(WordCard card, CancellationToken cancellationToken);
 
     Task<AiTestResult> TestAsync(string? apiKeyOverride, CancellationToken cancellationToken);
+
+    /// <summary>测试指定连接（设置页当前编辑项，可不保存）。</summary>
+    Task<AiTestResult> TestAsync(
+        string? apiKeyOverride,
+        AiConnection connection,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>解析模型返回的 JSON（去除 Markdown 代码块，容错字段大小写）。</summary>

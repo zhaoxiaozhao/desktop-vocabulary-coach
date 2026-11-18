@@ -44,11 +44,16 @@ internal sealed class FakeEnrichmentProvider : IVocabularyEnrichmentProvider
 
     public Exception? Exception { get; set; }
 
+    public Func<AiEnrichmentRequest, WordEnrichment?>? Handler { get; set; }
+
     public Task<WordEnrichment?> EnrichAsync(AiEnrichmentRequest request, CancellationToken cancellationToken)
     {
         CallCount++;
-        return Exception is null
-            ? Task.FromResult(Result)
-            : Task.FromException<WordEnrichment?>(Exception);
+        if (Exception is not null)
+        {
+            return Task.FromException<WordEnrichment?>(Exception);
+        }
+
+        return Task.FromResult(Handler?.Invoke(request) ?? Result);
     }
 }

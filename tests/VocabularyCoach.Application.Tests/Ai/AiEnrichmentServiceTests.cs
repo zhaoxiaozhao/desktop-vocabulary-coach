@@ -107,6 +107,63 @@ public class AiEnrichmentServiceTests
         Assert.Contains("Mock", result.Message);
     }
 
+    [Fact]
+    public async Task EnrichNow_AutoMode_FallsBackToNextConnection()
+    {
+        var settings = new UserSettings
+        {
+            AiEnabled = true,
+            AiAutoMode = true,
+            ActiveAiConnectionId = "a",
+            AiConnections =
+            [
+                new AiConnection
+                {
+                    Id = "a",
+                    Name = "A",
+                    Preset = AiPreset.OpenAi,
+                    BaseUrl = "https://fail.test/v1",
+                    Model = "fail-model",
+                },
+                new AiConnection
+                {
+                    Id = "b",
+                    Name = "B",
+                    Preset = AiPreset.DeepSeek,
+                    BaseUrl = "https://ok.test/v1",
+                    Model = "ok-model",
+                },
+            ],
+        };
+
+        var keys = new FakeAiKeyStore();
+        await keys.SetAsync("a", "sk-a");
+        await keys.SetAsync("b", "sk-b");
+
+        var provider = new FakeEnrichmentProvider("OpenAICompatible")
+        {
+            Handler = request => request.BaseUrl.Contains("ok.test")
+                ? SampleEnrichment
+                : null,
+        };
+
+        var cache = new FakeAiCacheStore();
+        var service = new AiEnrichmentService(
+            new FakeSettingsService { Current = settings },
+            cache,
+            keys,
+            new AiConnectionResolver(keys),
+            [provider],
+            NullLogger<AiEnrichmentService>.Instance);
+
+        var card = new WordCard { Word = "resilient" };
+
+        var result = await service.EnrichNowAsync(card, CancellationToken.None);
+
+        Assert.Same(SampleEnrichment, result);
+        Assert.Equal(2, provider.CallCount);
+    }
+
     private static UserSettings EnabledSettings(AiPreset preset) => new()
     {
         AiEnabled = true,
@@ -119,11 +176,39 @@ public class AiEnrichmentServiceTests
         FakeAiCacheStore cache,
         FakeSecretStore secrets,
         UserSettings settings,
-        FakeEnrichmentProvider provider) =>
-        new(
-            new FakeSettingsService { Current = settings },
+        FakeEnrichmentProvider provider)
+    {
+        var keyStore = new FakeAiKeyStore { Key = secrets.Secret };
+        var settingsService = new FakeSettingsService { Current = settings };
+        return new(
+            settingsService,
             cache,
-            secrets,
+            keyStore,
+            new AiConnectionResolver(keyStore),
             [provider],
             NullLogger<AiEnrichmentService>.Instance);
+    }
+
+    private sealed class FakeAiKeyStore : IAiKeyStore
+    {
+        public string? Key { get; set; }
+
+        public Task<string?> GetAsync(string connectionId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Key);
+
+        public Task SetAsync(
+            string connectionId,
+            string apiKey,
+            CancellationToken cancellationToken = default)
+        {
+            Key = apiKey;
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(string connectionId, CancellationToken cancellationToken = default)
+        {
+            Key = null;
+            return Task.CompletedTask;
+        }
+    }
 }

@@ -74,6 +74,7 @@ public sealed class SettingsService : ISettingsService
             if (!string.IsNullOrWhiteSpace(json))
             {
                 _current = JsonSerializer.Deserialize<UserSettings>(json, JsonOptions) ?? CreateDefaults();
+                AiConnectionSettings.Ensure(_current);
                 ApplyDerived(_current);
                 _logger.LogInformation("已加载用户设置（{Key}）。", StorageKey);
                 return;
@@ -85,12 +86,14 @@ public sealed class SettingsService : ISettingsService
         }
 
         _current = CreateDefaults();
+        AiConnectionSettings.Ensure(_current);
         ApplyDerived(_current);
     }
 
     public async Task SaveAsync(UserSettings settings, CancellationToken cancellationToken)
     {
         var normalized = Normalize(settings);
+        AiConnectionSettings.Ensure(normalized);
         var json = JsonSerializer.Serialize(normalized, JsonOptions);
 
         await _store.SetAsync(StorageKey, json, cancellationToken).ConfigureAwait(false);

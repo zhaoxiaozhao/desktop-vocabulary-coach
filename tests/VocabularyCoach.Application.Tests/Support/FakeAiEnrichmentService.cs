@@ -24,6 +24,12 @@ internal sealed class FakeAiEnrichmentService : IAiEnrichmentService
 
     public Task<AiTestResult> TestAsync(string? apiKeyOverride, CancellationToken cancellationToken) =>
         Task.FromResult(new AiTestResult(true, "ok"));
+
+    public Task<AiTestResult> TestAsync(
+        string? apiKeyOverride,
+        VocabularyCoach.Application.Settings.AiConnection connection,
+        CancellationToken cancellationToken) =>
+        Task.FromResult(new AiTestResult(true, "ok"));
 }
 
 internal sealed class FakeSecretStore : ISecretStore

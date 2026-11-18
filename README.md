@@ -199,6 +199,11 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
   - `IVocabularyEnrichmentProvider` 抽象 + 离线 Mock + OpenAI-compatible 实现。
   - 内置中美主流服务预设：OpenAI、Anthropic、Gemini、DeepSeek、Moonshot Kimi、阿里通义千问、
     智谱 GLM、SiliconFlow，以及自定义 Base URL；模型名称可改。
+  - **多连接（0.9.0 增量）**：可保存多个「服务商 + Base URL + 模型 + 句子模型 + Key」连接，
+    设置页可新增、删除、重命名与切换；每个连接独立保存 DPAPI 加密 Key（`ai.<连接Id>.key`），
+    旧版单连接自动迁移为「默认连接」。
+  - **Auto 模式（0.9.0 增量）**：按连接列表顺序尝试启用的连接，遇到 401/402/403/429、
+    超时或空结果自动切换下一个；全部失败才回退本地词库/离线句库。手动模式只使用选中的连接。
   - 缓存优先：卡片只读取 `AiGenerationCache`，无缓存时后台排队生成，下一次出现该词时展示；
     请求 20 秒超时、失败静默降级，不阻塞 UI、不影响本地词库。
   - 只发送当前单词与本地中文释义，不上传学习记录；API Key 使用 Windows DPAPI 加密保存，
@@ -242,8 +247,8 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 228 passed
-  Core 33 + Application 151 + Infrastructure 44
+dotnet test  VocabularyCoach.sln   → 232 passed
+  Core 33 + Application 154 + Infrastructure 45
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：
@@ -395,6 +400,10 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
 ## AI 配置（设置界面）
 
 - 默认关闭；关闭时所有核心功能完全不依赖网络。
+- **多连接**：可保存多个「服务商 + Base URL + 模型 + Key」连接，设置页可新增/删除/切换；
+  每个连接独立 Key（DPAPI，`ai.<id>.key`），旧版单连接自动迁移为「默认连接」。
+- **Auto 模式**：按连接列表顺序尝试启用的连接，401/402/429/超时自动换下一个；
+  全部失败才回退本地/离线。
 - 服务商预设：OpenAI、Anthropic、Gemini、DeepSeek、Moonshot Kimi、阿里通义千问、智谱 GLM、
   SiliconFlow、自定义（任意 OpenAI-compatible Base URL）、Mock（离线演示）。
 - 需要填写 Base URL、模型名称与 API Key；「测试连接」会用 `resilient` 发起一次真实请求。
@@ -403,7 +412,8 @@ DPI/多屏：进程使用 PerMonitorV2；卡片按鼠标所在屏幕工作区定
   2000、超时 60 秒。句子练习可单独填写「句子练习模型」，推荐 `glm-4-flash`；
   若该模型仍是推理模型，句子练习会直接使用离线句库。
 - 生成内容只用于卡片例句/简释/易混词提示；首次遇到单词时后台生成，下一次展示生效。
-- Key 文件：`%LocalAppData%\DesktopVocabularyCoach\ai.key`（DPAPI 加密，不可跨用户/机器复制）。
+- Key 文件：每个连接一个 `%LocalAppData%\DesktopVocabularyCoach\ai.<连接Id>.key`
+  （DPAPI 加密，不可跨用户/机器复制）；旧版 `ai.key` 会自动迁移到「默认连接」。
 - 401/402/403/404/429 与超时的排查见 [docs/ai-troubleshooting.md](docs/ai-troubleshooting.md)。
 
 ## 手动验收步骤

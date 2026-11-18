@@ -76,6 +76,15 @@ public sealed class UserSettings
     /// <summary>句子练习专用模型；留空则跟随 AiModel。</summary>
     public string SentencePracticeModel { get; set; } = string.Empty;
 
+    /// <summary>多连接配置；旧的单连接字段会迁移为「默认连接」。</summary>
+    public List<AiConnection> AiConnections { get; set; } = [];
+
+    /// <summary>手动模式下当前使用的连接 Id。</summary>
+    public string ActiveAiConnectionId { get; set; } = AiConnectionSettings.DefaultConnectionId;
+
+    /// <summary>Auto 模式：按列表顺序尝试启用的连接。</summary>
+    public bool AiAutoMode { get; set; }
+
     /// <summary>电脑空闲时后台生成例句。</summary>
     public bool SentenceGenerationEnabled { get; set; } = true;
 
@@ -88,7 +97,12 @@ public sealed class UserSettings
     /// <summary>空闲多少分钟后才允许后台生成。</summary>
     public int SentenceGenerationIdleMinutes { get; set; } = 5;
 
-    public UserSettings Clone() => (UserSettings)MemberwiseClone();
+    public UserSettings Clone()
+    {
+        var clone = (UserSettings)MemberwiseClone();
+        clone.AiConnections = AiConnections.Select(x => x.Clone()).ToList();
+        return clone;
+    }
 
     /// <summary>解析勿扰时段；格式错误时返回禁用。</summary>
     public QuietHours GetQuietHours() =>

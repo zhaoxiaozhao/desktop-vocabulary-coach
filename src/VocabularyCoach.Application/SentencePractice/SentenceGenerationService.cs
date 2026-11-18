@@ -93,7 +93,7 @@ public sealed class SentenceGenerationService : BackgroundService
         }
 
         var model = SentenceModelHelper.ResolveModel(settings);
-        if (SentenceModelHelper.IsReasoningModel(model))
+        if (!settings.AiAutoMode && SentenceModelHelper.IsReasoningModel(model))
         {
             if (!_reasoningModelLogged)
             {

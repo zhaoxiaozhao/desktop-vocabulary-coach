@@ -183,7 +183,8 @@ public sealed class SentencePracticeService : ISentencePracticeService
 
         var sentenceModel = SentenceModelHelper.ResolveModel(_settings.Current);
 
-        if (SentenceModelHelper.IsReasoningModel(sentenceModel))
+        if (!_settings.Current.AiAutoMode
+            && SentenceModelHelper.IsReasoningModel(sentenceModel))
         {
             return new SentencePracticeSession(
                 items,
