@@ -37,8 +37,10 @@ public partial class App : System.Windows.Application
     private MainWindow? _mainWindow;
     private GlobalHotkeyService? _hotkey;
     private CaptureCoordinator? _captureCoordinator;
+    private SelectionTranslationCoordinator? _translationCoordinator;
     private ISettingsService? _settingsService;
     private bool _hotkeyWarningShown;
+    private bool _translateHotkeyWarningShown;
 
     /// <summary>是否正在真正退出（用于区分“关闭窗口到托盘”）。</summary>
     public bool IsShuttingDown { get; private set; }
@@ -153,8 +155,12 @@ public partial class App : System.Windows.Application
             _captureCoordinator = _host.Services.GetRequiredService<CaptureCoordinator>();
             _trayIcon.CaptureRequested += OnCaptureRequested;
 
+            _translationCoordinator = _host.Services.GetRequiredService<SelectionTranslationCoordinator>();
+            _trayIcon.TranslateSelectionRequested += OnTranslateSelectionRequested;
+
             _hotkey = _host.Services.GetRequiredService<GlobalHotkeyService>();
             _hotkey.Pressed += OnHotkeyPressed;
+            _hotkey.TranslatePressed += OnTranslateHotkeyPressed;
             settingsService.Changed += OnSettingsChanged;
             UpdateHotkeyRegistration();
 
@@ -217,6 +223,8 @@ public partial class App : System.Windows.Application
         builder.Services.AddSingleton<WindowLauncher>();
         builder.Services.AddSingleton<ISelectedTextReader, WindowsSelectedTextReader>();
         builder.Services.AddSingleton<GlobalHotkeyService>();
+        builder.Services.AddSingleton<SelectionReplacer>();
+        builder.Services.AddSingleton<SelectionTranslationCoordinator>();
         builder.Services.AddSingleton<CaptureCoordinator>();
         builder.Services.AddSingleton<WpfWordPopupPresenter>();
         builder.Services.AddSingleton<IWordPopupPresenter>(
@@ -246,11 +254,22 @@ public partial class App : System.Windows.Application
 
     private void OnCaptureRequested(object? sender, EventArgs e) => _captureCoordinator?.CaptureManually();
 
+    private void OnTranslateSelectionRequested(object? sender, EventArgs e) =>
+        _ = _translationCoordinator?.TranslateSelectionAsync();
+
     private void OnHotkeyPressed(object? sender, EventArgs e)
     {
         if (_captureCoordinator is not null)
         {
             _ = _captureCoordinator.CaptureFromSelectionAsync();
+        }
+    }
+
+    private void OnTranslateHotkeyPressed(object? sender, EventArgs e)
+    {
+        if (_translationCoordinator is not null)
+        {
+            _ = _translationCoordinator.TranslateSelectionAsync();
         }
     }
 
@@ -314,16 +333,27 @@ public partial class App : System.Windows.Application
         if (!_settingsService.Current.CaptureEnabled)
         {
             _hotkey.Unregister();
-            return;
         }
-
-        if (!_hotkey.TryRegister() && !_hotkeyWarningShown)
+        else if (!_hotkey.TryRegister() && !_hotkeyWarningShown)
         {
             _hotkeyWarningShown = true;
-            _logger?.LogWarning("全局热键注册失败。");
+            _logger?.LogWarning("全局热键 Ctrl+Alt+W 注册失败。");
             _trayIcon?.ShowInfo(
                 "快捷键不可用",
                 "Ctrl+Alt+W 可能已被其他程序占用，可在设置中关闭生词捕获热键。");
+        }
+
+        if (!_settingsService.Current.ChineseToEnglishEnabled)
+        {
+            _hotkey.UnregisterTranslate();
+        }
+        else if (!_hotkey.TryRegisterTranslate() && !_translateHotkeyWarningShown)
+        {
+            _translateHotkeyWarningShown = true;
+            _logger?.LogWarning("全局热键 Ctrl+Alt+T 注册失败。");
+            _trayIcon?.ShowInfo(
+                "中文转英文快捷键不可用",
+                "Ctrl+Alt+T 可能已被其他程序占用，可在设置中关闭中文转英文。");
         }
     }
 

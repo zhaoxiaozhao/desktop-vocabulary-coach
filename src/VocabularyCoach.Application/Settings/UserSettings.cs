@@ -52,6 +52,10 @@ public sealed class UserSettings
     /// <summary>捕获后是否显示托盘气泡提示；关闭后静默捕获完全无提示。</summary>
     public bool CaptureShowNotification { get; set; } = true;
 
+    // 中文转英文
+    /// <summary>启用全局热键 Ctrl+Alt+T，把选中的中文翻译成英文。</summary>
+    public bool ChineseToEnglishEnabled { get; set; } = false;
+
     /// <summary>开机自动启动并静默进入托盘。</summary>
     public bool StartWithWindows { get; set; } = false;
 

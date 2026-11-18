@@ -4,15 +4,17 @@ using Microsoft.Extensions.Logging;
 
 namespace VocabularyCoach.App.Services;
 
-/// <summary>全局热键：默认 Ctrl+Alt+W，用于捕获当前选中的单词/短语。</summary>
+/// <summary>全局热键：Ctrl+Alt+W 捕获生词，Ctrl+Alt+T 中文转英文。</summary>
 public sealed class GlobalHotkeyService : IDisposable
 {
     private const int HotkeyId = 0x5643;
+    private const int TranslateHotkeyId = 0x5644;
     private const int WmHotkey = 0x0312;
     private const uint ModAlt = 0x0001;
     private const uint ModControl = 0x0002;
     private const uint ModNoRepeat = 0x4000;
     private const uint VkW = 0x57;
+    private const uint VkT = 0x54;
     private static readonly IntPtr HwndMessage = new(-3);
 
     private readonly ILogger<GlobalHotkeyService> _logger;
@@ -25,7 +27,11 @@ public sealed class GlobalHotkeyService : IDisposable
 
     public event EventHandler? Pressed;
 
+    public event EventHandler? TranslatePressed;
+
     public bool IsRegistered { get; private set; }
+
+    public bool IsTranslateRegistered { get; private set; }
 
     public bool TryRegister()
     {
@@ -36,21 +42,10 @@ public sealed class GlobalHotkeyService : IDisposable
 
         try
         {
-            if (_source is null)
-            {
-                var parameters = new HwndSourceParameters("VocabularyCoachHotkeyWindow")
-                {
-                    Width = 0,
-                    Height = 0,
-                    ParentWindow = HwndMessage,
-                };
-
-                _source = new HwndSource(parameters);
-                _source.AddHook(WndProc);
-            }
+            EnsureSource();
 
             IsRegistered = RegisterHotKey(
-                _source.Handle,
+                _source!.Handle,
                 HotkeyId,
                 ModControl | ModAlt | ModNoRepeat,
                 VkW);
@@ -69,6 +64,37 @@ public sealed class GlobalHotkeyService : IDisposable
         }
     }
 
+    public bool TryRegisterTranslate()
+    {
+        if (IsTranslateRegistered)
+        {
+            return true;
+        }
+
+        try
+        {
+            EnsureSource();
+
+            IsTranslateRegistered = RegisterHotKey(
+                _source!.Handle,
+                TranslateHotkeyId,
+                ModControl | ModAlt | ModNoRepeat,
+                VkT);
+
+            if (!IsTranslateRegistered)
+            {
+                _logger.LogWarning("全局热键 Ctrl+Alt+T 注册失败，可能已被其他程序占用。");
+            }
+
+            return IsTranslateRegistered;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "注册中文转英文热键失败。");
+            return false;
+        }
+    }
+
     public void Unregister()
     {
         if (_source is not null && IsRegistered)
@@ -79,12 +105,52 @@ public sealed class GlobalHotkeyService : IDisposable
         IsRegistered = false;
     }
 
+    public void UnregisterTranslate()
+    {
+        if (_source is not null && IsTranslateRegistered)
+        {
+            UnregisterHotKey(_source.Handle, TranslateHotkeyId);
+        }
+
+        IsTranslateRegistered = false;
+    }
+
+    private void EnsureSource()
+    {
+        if (_source is not null)
+        {
+            return;
+        }
+
+        var parameters = new HwndSourceParameters("VocabularyCoachHotkeyWindow")
+        {
+            Width = 0,
+            Height = 0,
+            ParentWindow = HwndMessage,
+        };
+
+        _source = new HwndSource(parameters);
+        _source.AddHook(WndProc);
+    }
+
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg == WmHotkey && wParam.ToInt32() == HotkeyId)
+        if (msg != WmHotkey)
         {
-            handled = true;
-            Pressed?.Invoke(this, EventArgs.Empty);
+            return IntPtr.Zero;
+        }
+
+        switch (wParam.ToInt32())
+        {
+            case HotkeyId:
+                handled = true;
+                Pressed?.Invoke(this, EventArgs.Empty);
+                break;
+
+            case TranslateHotkeyId:
+                handled = true;
+                TranslatePressed?.Invoke(this, EventArgs.Empty);
+                break;
         }
 
         return IntPtr.Zero;
@@ -93,6 +159,7 @@ public sealed class GlobalHotkeyService : IDisposable
     public void Dispose()
     {
         Unregister();
+        UnregisterTranslate();
 
         if (_source is not null)
         {

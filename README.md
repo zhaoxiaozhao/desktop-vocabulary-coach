@@ -3,7 +3,7 @@
 常驻 Windows 系统托盘的英语单词学习工具：在合适的时机随机弹出一张轻量浮动单词卡片，
 用户用「认识 / 模糊 / 不认识」快速反馈，系统据此安排后续复习。核心学习功能以离线为主。
 
-- 当前版本：`0.9.0`
+- 当前版本：`0.9.1`
 - 目标平台：Windows 10 / 11 x64
 - 技术栈：.NET 10 + WPF + EF Core + SQLite + Generic Host + CommunityToolkit.Mvvm
 - 代码仓库：[github.com/zhaoxiaozhao/desktop-vocabulary-coach](https://github.com/zhaoxiaozhao/desktop-vocabulary-coach)
@@ -223,6 +223,12 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
   - 不保存来源应用、窗口标题或上下文句子。
   - 托盘新增「记录生词（Ctrl+Alt+W）」与「生词本」；生词本可查看释义、捕获次数、复习状态。
   - 内置词库扩充到 18,914 词，降低专业词汇查不到的概率。
+- **中文转英文（0.9.1 增量）**：
+  - 设置 → 中文转英文 → 打开「启用中文转英文（Ctrl+Alt+T）」后，可在任意应用选中中文按热键。
+  - AI 翻译后弹出预览窗：可修改译文，再「替换原文」或「复制译文」。
+  - 使用当前手动连接或 Auto 多连接；AI 关闭、无连接或失败时不会替换原文。
+  - 只发送当前选中的文字，不监听键盘、不后台读取其他应用内容。
+  - 目标应用禁止模拟粘贴时自动改为复制译文，避免误操作。
 - **开机自动启动（0.8.2 增量）**：
   - 设置 → 提醒 → 「开机自动启动（静默进入系统托盘）」。
   - 通过当前用户注册表 `HKCU\...\Run` 注册，无需管理员权限；命令行带 `--startup`，启动时不显示主窗口。
@@ -247,8 +253,8 @@ powershell -ExecutionPolicy Bypass -File tools\deploy-site.ps1
 
 ```text
 dotnet build VocabularyCoach.sln   → 0 error, 0 warning
-dotnet test  VocabularyCoach.sln   → 232 passed
-  Core 33 + Application 154 + Infrastructure 45
+dotnet test  VocabularyCoach.sln   → 243 passed
+  Core 33 + Application 165 + Infrastructure 45
 ```
 
 运行时自动化场景（在真实 App 启动路径下执行）：

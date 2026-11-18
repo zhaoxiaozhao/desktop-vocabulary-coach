@@ -58,6 +58,7 @@ public static class InfrastructureServiceCollectionExtensions
                 new HttpClient { Timeout = TimeSpan.FromSeconds(60) },
                 sp.GetRequiredService<ILogger<OpenAiCompatibleEnrichmentProvider>>()));
         services.AddSingleton<IAiCacheStore, EfAiCacheStore>();
+        services.AddSingleton<ITextTranslationService, AiTextTranslationService>();
         services.AddSingleton<ISecretStore>(sp => new DpapiSecretStore(
             Path.Combine(AppPaths.RootDirectory, "ai.key"),
             sp.GetRequiredService<ILogger<DpapiSecretStore>>()));

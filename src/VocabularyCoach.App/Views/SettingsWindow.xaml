@@ -302,6 +302,29 @@
                     </StackPanel>
                 </Border>
 
+                <!-- 中文转英文 -->
+                <Border Margin="0,12,0,0"
+                        Padding="18,16"
+                        Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitleText}" Text="中文转英文" />
+                        <TextBlock Margin="0,8,0,0"
+                                   Style="{StaticResource BodyText}"
+                                   Text="在任意应用中选中中文，按 Ctrl+Alt+T：先用 AI 翻译，确认后原位替换成英文。只发送当前选中的文字。" />
+
+                        <CheckBox Margin="0,12,0,0"
+                                  Content="启用中文转英文（Ctrl+Alt+T）"
+                                  IsChecked="{Binding ChineseToEnglishEnabled}" />
+                        <TextBlock Margin="0,6,0,0"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="需要先启用 AI 并配置可用连接；翻译失败时不会替换原文。"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
                 <!-- 显示 -->
                 <Border Margin="0,12,0,0"
                         Padding="18,16"

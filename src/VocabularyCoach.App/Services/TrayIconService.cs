@@ -66,6 +66,9 @@ public sealed class TrayIconService : IDisposable
     /// <summary>请求打开生词捕获窗口（手动输入）。</summary>
     public event EventHandler? CaptureRequested;
 
+    /// <summary>请求把当前选中的中文翻译成英文。</summary>
+    public event EventHandler? TranslateSelectionRequested;
+
     /// <summary>关闭主窗口时提示用户应用仍在后台运行。</summary>
     public void NotifyStillRunning()
     {
@@ -106,6 +109,7 @@ public sealed class TrayIconService : IDisposable
         _menu.Items.Add(CreateItem("立即弹出一个单词", (_, _) => ShowWordNow()));
         _menu.Items.Add(new Forms.ToolStripSeparator());
         _menu.Items.Add(CreateItem("记录生词（Ctrl+Alt+W）", (_, _) => CaptureRequested?.Invoke(this, EventArgs.Empty)));
+        _menu.Items.Add(CreateItem("中文转英文（Ctrl+Alt+T）", (_, _) => TranslateSelectionRequested?.Invoke(this, EventArgs.Empty)));
         _menu.Items.Add(CreateItem("生词本", (_, _) => _windowLauncher.ShowCapturedWords()));
         _menu.Items.Add(CreateItem("句子练习…", (_, _) => ShowSentencePractice()));
         _menu.Items.Add(new Forms.ToolStripSeparator());
