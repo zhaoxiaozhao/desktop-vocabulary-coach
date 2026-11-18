@@ -56,6 +56,9 @@ public sealed class UserSettings
     /// <summary>启用全局热键 Ctrl+Alt+T，把选中的中文翻译成英文。</summary>
     public bool ChineseToEnglishEnabled { get; set; } = false;
 
+    /// <summary>替换前是否弹出预览窗；关闭后直接替换，可用 Ctrl+Z 撤销。</summary>
+    public bool ChineseToEnglishPreviewEnabled { get; set; } = false;
+
     /// <summary>开机自动启动并静默进入托盘。</summary>
     public bool StartWithWindows { get; set; } = false;
 

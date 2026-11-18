@@ -318,6 +318,9 @@
                         <CheckBox Margin="0,12,0,0"
                                   Content="启用中文转英文（Ctrl+Alt+T）"
                                   IsChecked="{Binding ChineseToEnglishEnabled}" />
+                        <CheckBox Margin="0,8,0,0"
+                                  Content="替换前显示预览（关闭后直接替换，可按 Ctrl+Z 撤销）"
+                                  IsChecked="{Binding ChineseToEnglishPreviewEnabled}" />
                         <TextBlock Margin="0,6,0,0"
                                    Style="{StaticResource CaptionText}"
                                    Text="需要先启用 AI 并配置可用连接；翻译失败时不会替换原文。"

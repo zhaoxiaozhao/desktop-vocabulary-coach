@@ -154,6 +154,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _chineseToEnglishEnabled;
 
     [ObservableProperty]
+    private bool _chineseToEnglishPreviewEnabled;
+
+    [ObservableProperty]
     private bool _startWithWindows;
 
     [ObservableProperty]
@@ -254,6 +257,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         CaptureSilentAdd = settings.CaptureSilentAdd;
         CaptureShowNotification = settings.CaptureShowNotification;
         ChineseToEnglishEnabled = settings.ChineseToEnglishEnabled;
+        ChineseToEnglishPreviewEnabled = settings.ChineseToEnglishPreviewEnabled;
         StartWithWindows = settings.StartWithWindows;
         ManualDifficulty = settings.ManualDifficulty;
         NewWordRatio = settings.NewWordRatio;
@@ -478,6 +482,7 @@ public sealed partial class SettingsViewModel : ObservableObject
                 CaptureSilentAdd = CaptureSilentAdd,
                 CaptureShowNotification = CaptureShowNotification,
                 ChineseToEnglishEnabled = ChineseToEnglishEnabled,
+                ChineseToEnglishPreviewEnabled = ChineseToEnglishPreviewEnabled,
                 StartWithWindows = StartWithWindows,
                 ManualDifficulty = ManualDifficulty,
                 NewWordRatio = NewWordRatio,

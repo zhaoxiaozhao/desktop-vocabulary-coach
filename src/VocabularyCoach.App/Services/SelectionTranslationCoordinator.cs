@@ -4,6 +4,7 @@ using VocabularyCoach.App.Views;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Ai;
 using VocabularyCoach.Application.Licensing;
+using VocabularyCoach.Application.Settings;
 
 namespace VocabularyCoach.App.Services;
 
@@ -16,6 +17,7 @@ public sealed class SelectionTranslationCoordinator
 
     private readonly ISelectedTextReader _selectedTextReader;
     private readonly ITextTranslationService _translation;
+    private readonly ISettingsService _settings;
     private readonly ILicenseService _license;
     private readonly SelectionReplacer _replacer;
     private readonly TrayIconService _tray;
@@ -27,6 +29,7 @@ public sealed class SelectionTranslationCoordinator
     public SelectionTranslationCoordinator(
         ISelectedTextReader selectedTextReader,
         ITextTranslationService translation,
+        ISettingsService settings,
         ILicenseService license,
         SelectionReplacer replacer,
         TrayIconService tray,
@@ -34,6 +37,7 @@ public sealed class SelectionTranslationCoordinator
     {
         _selectedTextReader = selectedTextReader;
         _translation = translation;
+        _settings = settings;
         _license = license;
         _replacer = replacer;
         _tray = tray;
@@ -99,6 +103,32 @@ public sealed class SelectionTranslationCoordinator
             if (!result.Success)
             {
                 _tray.ShowInfo("中文转英文失败", result.Message);
+                return;
+            }
+
+            if (!_settings.Current.ChineseToEnglishPreviewEnabled)
+            {
+                if (GetForegroundWindow() != targetWindow)
+                {
+                    _replacer.Copy(result.Translation);
+                    _tray.ShowInfo(
+                        "已复制译文",
+                        "翻译期间焦点已切换，译文已复制，请回到目标位置手动粘贴。");
+                    return;
+                }
+
+                var replaced = await _replacer
+                    .ReplaceAsync(targetWindow, result.Translation, CancellationToken.None)
+                    .ConfigureAwait(true);
+
+                if (!replaced)
+                {
+                    _replacer.Copy(result.Translation);
+                    _tray.ShowInfo(
+                        "已复制译文",
+                        "目标应用不允许自动粘贴，译文已复制，请手动粘贴。");
+                }
+
                 return;
             }
 
