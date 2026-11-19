@@ -157,6 +157,16 @@ public sealed class SettingsService : ISettingsService
         normalized.NewWordRatio = Math.Clamp(normalized.NewWordRatio, 0, 1);
         normalized.AiBaseUrl = (normalized.AiBaseUrl ?? string.Empty).Trim();
         normalized.AiModel = (normalized.AiModel ?? string.Empty).Trim();
+        normalized.CaptureHotkey = (normalized.CaptureHotkey ?? string.Empty).Trim();
+        normalized.TranslateHotkey = (normalized.TranslateHotkey ?? string.Empty).Trim();
+        normalized.SentencePracticePopupChancePercent = Math.Clamp(
+            normalized.SentencePracticePopupChancePercent,
+            0,
+            100);
+        normalized.SentencePracticePopupSentenceCount = Math.Clamp(
+            normalized.SentencePracticePopupSentenceCount,
+            1,
+            10);
 
         if (!TimeOnly.TryParse(normalized.PauseUntilTomorrowTime, out _))
         {

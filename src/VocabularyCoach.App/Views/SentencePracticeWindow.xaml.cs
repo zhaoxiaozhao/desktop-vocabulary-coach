@@ -18,6 +18,12 @@ public partial class SentencePracticeWindow : Window
         Closed += OnClosed;
     }
 
+    public int SessionSize
+    {
+        get => _viewModel.SessionSize;
+        set => _viewModel.SessionSize = value;
+    }
+
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         await _viewModel.StartAsync();

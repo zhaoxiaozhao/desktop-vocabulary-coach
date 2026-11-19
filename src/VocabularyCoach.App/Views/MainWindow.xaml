@@ -61,9 +61,20 @@
                     <TextBlock Grid.Column="0"
                                Style="{StaticResource SectionTitleText}"
                                Text="运行状态" />
-                    <TextBlock Grid.Column="1"
-                               Style="{StaticResource CaptionText}"
-                               Text="{Binding VersionSummary}" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="{Binding VersionSummary}" />
+                        <Button Margin="10,0,0,0"
+                                Padding="8,3"
+                                Command="{Binding OpenSettingsCommand}"
+                                Content="⚙"
+                                FontSize="16"
+                                ToolTip="设置"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
                 </Grid>
 
                 <StackPanel Grid.Row="1"

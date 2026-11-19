@@ -254,6 +254,9 @@ public sealed partial class MainViewModel : ObservableObject
     private void ActivateLicense() => _windowLauncher.ShowLicense();
 
     [RelayCommand]
+    private void OpenSettings() => _windowLauncher.ShowSettings();
+
+    [RelayCommand]
     private void OpenSentencePractice()
     {
         if (!_license.CanUsePremiumFeatures)

@@ -2,6 +2,14 @@ using VocabularyCoach.Core.ValueObjects;
 
 namespace VocabularyCoach.Application.Settings;
 
+/// <summary>句子练习作答方式。</summary>
+public enum SentenceAnswerMode
+{
+    Choice,
+    Typing,
+    Mixed,
+}
+
 /// <summary>
 /// 用户可在设置界面修改的全部选项。持久化为 JSON（AppSettings 表），
 /// 重启后由 <see cref="ISettingsService"/> 加载并覆盖 appsettings.json 默认值。
@@ -47,14 +55,20 @@ public sealed class UserSettings
     // 生词捕获
     public bool CaptureEnabled { get; set; } = true;
 
+    /// <summary>生词捕获全局热键，例如 Ctrl+Alt+W。</summary>
+    public string CaptureHotkey { get; set; } = "Ctrl+Alt+W";
+
     public bool CaptureSilentAdd { get; set; } = false;
 
     /// <summary>捕获后是否显示托盘气泡提示；关闭后静默捕获完全无提示。</summary>
     public bool CaptureShowNotification { get; set; } = true;
 
     // 中文转英文
-    /// <summary>启用全局热键 Ctrl+Alt+T，把选中的中文翻译成英文。</summary>
+    /// <summary>启用全局热键，把选中的中文翻译成英文。</summary>
     public bool ChineseToEnglishEnabled { get; set; } = false;
+
+    /// <summary>中文转英文全局热键，例如 Ctrl+Alt+T。</summary>
+    public string TranslateHotkey { get; set; } = "Ctrl+Alt+T";
 
     /// <summary>替换前是否弹出预览窗；关闭后直接替换，可用 Ctrl+Z 撤销。</summary>
     public bool ChineseToEnglishPreviewEnabled { get; set; } = false;
@@ -103,6 +117,18 @@ public sealed class UserSettings
 
     /// <summary>空闲多少分钟后才允许后台生成。</summary>
     public int SentenceGenerationIdleMinutes { get; set; } = 5;
+
+    /// <summary>句子练习作答方式：选择 / 手动输入 / 混合。</summary>
+    public SentenceAnswerMode SentenceAnswerMode { get; set; } = SentenceAnswerMode.Mixed;
+
+    /// <summary>随机弹卡时是否偶尔打开句子练习。</summary>
+    public bool SentencePracticePopupEnabled { get; set; } = true;
+
+    /// <summary>随机弹卡打开句子练习的概率（百分比）。</summary>
+    public int SentencePracticePopupChancePercent { get; set; } = 20;
+
+    /// <summary>随机弹窗每次包含多少句。</summary>
+    public int SentencePracticePopupSentenceCount { get; set; } = 1;
 
     public UserSettings Clone()
     {

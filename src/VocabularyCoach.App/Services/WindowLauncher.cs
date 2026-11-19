@@ -62,21 +62,28 @@ public sealed class WindowLauncher
         }
     }
 
-    public void ShowSentencePractice()
+    public bool ShowSentencePractice(int sessionSize = 10)
     {
         try
         {
-            if (_sentencePracticeWindow is null)
+            if (_sentencePracticeWindow is not null)
             {
-                _sentencePracticeWindow = _services.GetRequiredService<SentencePracticeWindow>();
-                _sentencePracticeWindow.Closed += (_, _) => _sentencePracticeWindow = null;
+                ShowWindow(_sentencePracticeWindow);
+                return false;
             }
 
-            ShowWindow(_sentencePracticeWindow);
+            var window = _services.GetRequiredService<SentencePracticeWindow>();
+            window.SessionSize = Math.Clamp(sessionSize, 1, 20);
+            _sentencePracticeWindow = window;
+            window.Closed += (_, _) => _sentencePracticeWindow = null;
+
+            ShowWindow(window);
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "打开句子练习窗口失败。");
+            return false;
         }
     }
 

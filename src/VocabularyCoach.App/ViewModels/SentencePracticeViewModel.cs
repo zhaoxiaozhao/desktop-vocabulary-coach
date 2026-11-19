@@ -3,29 +3,37 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.SentencePractice;
+using VocabularyCoach.Application.Settings;
 
 namespace VocabularyCoach.App.ViewModels;
 
 /// <summary>句子填空练习窗口：选择或手输答案，提交后显示语法/固定句式说明。</summary>
 public sealed partial class SentencePracticeViewModel : ObservableObject
 {
-    public const int SessionSize = 10;
+    public const int DefaultSessionSize = 10;
 
     private readonly ISentencePracticeService _service;
+    private readonly ISettingsService _settings;
     private readonly ILogger<SentencePracticeViewModel> _logger;
 
     private IReadOnlyList<SentencePracticeItem> _items = [];
     private int _index;
     private int _correctCount;
     private DateTimeOffset _shownAt;
+    private SentenceAnswerMode _answerMode = SentenceAnswerMode.Mixed;
 
     public SentencePracticeViewModel(
         ISentencePracticeService service,
+        ISettingsService settings,
         ILogger<SentencePracticeViewModel> logger)
     {
         _service = service;
+        _settings = settings;
         _logger = logger;
     }
+
+    /// <summary>本次练习的句子数量；随机弹窗会设置为较小值。</summary>
+    public int SessionSize { get; set; } = DefaultSessionSize;
 
     public event EventHandler? CloseRequested;
 
@@ -98,7 +106,6 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ShowOptions))]
     [NotifyPropertyChangedFor(nameof(ShowTyping))]
     [NotifyPropertyChangedFor(nameof(CanSubmitTyping))]
-    [NotifyPropertyChangedFor(nameof(TypingToggleText))]
     private bool _isTyping;
 
     [ObservableProperty]
@@ -133,8 +140,6 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
     public bool CanSubmitTyping =>
         IsTyping && !IsAnswered && !IsLoading && !string.IsNullOrWhiteSpace(TypedAnswer);
 
-    public string TypingToggleText => IsTyping ? "改用选择" : "手动输入";
-
     partial void OnTypedAnswerChanged(string value) =>
         OnPropertyChanged(nameof(CanSubmitTyping));
 
@@ -149,10 +154,12 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
         StatusMessage = string.Empty;
         SummaryText = string.Empty;
         Options.Clear();
+        _answerMode = _settings.Current.SentenceAnswerMode;
 
         try
         {
-            var session = await _service.CreateSessionAsync(SessionSize);
+            var session = await _service.CreateSessionAsync(
+                Math.Clamp(SessionSize, 1, 20));
             _items = session.Items;
             StatusMessage = session.AiMessage ?? string.Empty;
 
@@ -199,6 +206,12 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
         TypedAnswer = string.Empty;
         IsAnswered = false;
         IsCorrect = false;
+        IsTyping = _answerMode switch
+        {
+            SentenceAnswerMode.Choice => false,
+            SentenceAnswerMode.Typing => true,
+            _ => _index % 2 == 1,
+        };
         _shownAt = DateTimeOffset.UtcNow;
 
         Options.Clear();
@@ -322,9 +335,6 @@ public sealed partial class SentencePracticeViewModel : ObservableObject
     {
         await StartAsync();
     }
-
-    [RelayCommand]
-    private void ToggleTyping() => IsTyping = !IsTyping;
 
     [RelayCommand]
     private void Close() => CloseRequested?.Invoke(this, EventArgs.Empty);

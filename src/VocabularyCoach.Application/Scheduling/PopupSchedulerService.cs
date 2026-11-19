@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
 using VocabularyCoach.Application.Licensing;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Enums;
 
@@ -27,6 +28,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
     private readonly PopupRateLimiter _rateLimiter;
     private readonly PauseState _pauseState;
     private readonly WordCardService _wordCardService;
+    private readonly ISentencePracticePopupService _sentencePracticePopup;
     private readonly ILicenseService _license;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<PopupSchedulerService> _logger;
@@ -48,6 +50,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
         PopupRateLimiter rateLimiter,
         PauseState pauseState,
         WordCardService wordCardService,
+        ISentencePracticePopupService sentencePracticePopup,
         ILicenseService license,
         TimeProvider timeProvider,
         ILogger<PopupSchedulerService> logger)
@@ -57,6 +60,7 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
         _rateLimiter = rateLimiter;
         _pauseState = pauseState;
         _wordCardService = wordCardService;
+        _sentencePracticePopup = sentencePracticePopup;
         _license = license;
         _timeProvider = timeProvider;
         _logger = logger;
@@ -257,6 +261,27 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
         try
         {
             var shownAt = _timeProvider.GetUtcNow();
+            var current = _settings.Current;
+
+            if (current.SentencePracticePopupEnabled
+                && ShouldShowSentencePractice(current))
+            {
+                var count = Math.Clamp(current.SentencePracticePopupSentenceCount, 1, 10);
+                var shown = await _sentencePracticePopup
+                    .TryShowAsync(count, stoppingToken)
+                    .ConfigureAwait(false);
+
+                if (shown)
+                {
+                    _rateLimiter.RecordPopup(shownAt);
+                    _lastSkipReason = null;
+                    _logger.LogInformation(
+                        "自动弹出句子练习（{Count} 句）。",
+                        count);
+                    return true;
+                }
+            }
+
             var result = await _wordCardService.ShowNextCardAsync(LearningSource.Popup, stoppingToken).ConfigureAwait(false);
 
             if (result is not null)
@@ -274,6 +299,12 @@ public sealed class PopupSchedulerService : BackgroundService, ISchedulerStatus
             _logger.LogInformation(ex, "已有卡片正在显示，跳过本次自动弹卡。");
             return true;
         }
+    }
+
+    private static bool ShouldShowSentencePractice(UserSettings settings)
+    {
+        var chance = Math.Clamp(settings.SentencePracticePopupChancePercent, 0, 100);
+        return chance > 0 && Random.Shared.Next(100) < chance;
     }
 
     private void LogSkip(string reason)

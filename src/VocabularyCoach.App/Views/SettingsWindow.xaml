@@ -1,6 +1,7 @@
 <Window x:Class="VocabularyCoach.App.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:VocabularyCoach.App.Controls"
         Title="设置"
         Width="660"
         Height="800"
@@ -277,6 +278,61 @@
                     </StackPanel>
                 </Border>
 
+                <!-- 句子练习 -->
+                <Border Margin="0,12,0,0"
+                        Padding="18,16"
+                        Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        CornerRadius="12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitleText}" Text="句子练习" />
+
+                        <TextBlock Margin="0,12,0,6"
+                                   Style="{StaticResource BodyText}"
+                                   Text="作答方式" />
+                        <ComboBox Width="320"
+                                  HorizontalAlignment="Left"
+                                  ItemTemplate="{StaticResource EnumOptionTemplate}"
+                                  ItemsSource="{Binding SentenceAnswerModes}"
+                                  SelectedValue="{Binding SentenceAnswerMode}"
+                                  SelectedValuePath="Value" />
+
+                        <CheckBox Margin="0,12,0,0"
+                                  Content="随机弹卡时偶尔打开句子练习"
+                                  IsChecked="{Binding SentencePracticePopupEnabled}" />
+                        <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="概率" />
+                            <ComboBox Width="80"
+                                      Margin="8,0,0,0"
+                                      ItemsSource="{Binding SentencePopupChances}"
+                                      SelectedItem="{Binding SentencePracticePopupChancePercent}" />
+                            <TextBlock Margin="6,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="%" />
+                            <TextBlock Margin="20,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="每次" />
+                            <ComboBox Width="70"
+                                      Margin="8,0,0,0"
+                                      ItemsSource="{Binding SentencePopupCounts}"
+                                      SelectedItem="{Binding SentencePracticePopupSentenceCount}" />
+                            <TextBlock Margin="6,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyText}"
+                                       Text="句" />
+                        </StackPanel>
+                        <TextBlock Margin="0,6,0,0"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="到点弹卡时按该概率改为打开句子练习；关闭窗口后继续正常提醒。"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
                 <!-- 生词捕获 -->
                 <Border Margin="0,12,0,0"
                         Padding="18,16"
@@ -288,12 +344,25 @@
                         <TextBlock Style="{StaticResource SectionTitleText}" Text="生词捕获" />
                         <TextBlock Margin="0,8,0,0"
                                    Style="{StaticResource BodyText}"
-                                   Text="在任意应用中选中 1–5 个英文单词，按 Ctrl+Alt+W 加入生词本；捕获的词会立即进入复习队列。" />
+                                   Text="在任意应用中选中 1–5 个英文单词，按设置的热键加入生词本；捕获的词会立即进入复习队列。" />
 
                         <CheckBox Margin="0,12,0,0"
-                                  Content="启用全局热键 Ctrl+Alt+W"
+                                  Content="启用生词捕获热键"
                                   IsChecked="{Binding CaptureEnabled}" />
-                        <CheckBox Margin="0,8,0,0"
+
+                        <TextBlock Margin="0,10,0,6"
+                                   Style="{StaticResource BodyText}"
+                                   Text="捕获热键" />
+                        <controls:HotkeyBox Width="220"
+                                            HorizontalAlignment="Left"
+                                            Style="{StaticResource SearchTextBoxStyle}"
+                                            Hotkey="{Binding CaptureHotkey, Mode=TwoWay}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="点击输入框后按下新的组合键，例如 Ctrl+Alt+W。"
+                                   TextWrapping="Wrap" />
+
+                        <CheckBox Margin="0,10,0,0"
                                   Content="词库已有释义时静默加入（不再弹确认窗）"
                                   IsChecked="{Binding CaptureSilentAdd}" />
                         <CheckBox Margin="0,8,0,0"
@@ -313,12 +382,25 @@
                         <TextBlock Style="{StaticResource SectionTitleText}" Text="中文转英文" />
                         <TextBlock Margin="0,8,0,0"
                                    Style="{StaticResource BodyText}"
-                                   Text="在任意应用中选中中文，按 Ctrl+Alt+T：先用 AI 翻译，确认后原位替换成英文。只发送当前选中的文字。" />
+                                   Text="在任意应用中选中中文，按设置的热键：先用 AI 翻译，默认直接原位替换成英文。只发送当前选中的文字。" />
 
                         <CheckBox Margin="0,12,0,0"
-                                  Content="启用中文转英文（Ctrl+Alt+T）"
+                                  Content="启用中文转英文热键"
                                   IsChecked="{Binding ChineseToEnglishEnabled}" />
-                        <CheckBox Margin="0,8,0,0"
+
+                        <TextBlock Margin="0,10,0,6"
+                                   Style="{StaticResource BodyText}"
+                                   Text="翻译热键" />
+                        <controls:HotkeyBox Width="220"
+                                            HorizontalAlignment="Left"
+                                            Style="{StaticResource SearchTextBoxStyle}"
+                                            Hotkey="{Binding TranslateHotkey, Mode=TwoWay}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Style="{StaticResource CaptionText}"
+                                   Text="点击输入框后按下新的组合键，例如 Ctrl+Alt+T。"
+                                   TextWrapping="Wrap" />
+
+                        <CheckBox Margin="0,10,0,0"
                                   Content="替换前显示预览（关闭后直接替换，可按 Ctrl+Z 撤销）"
                                   IsChecked="{Binding ChineseToEnglishPreviewEnabled}" />
                         <TextBlock Margin="0,6,0,0"

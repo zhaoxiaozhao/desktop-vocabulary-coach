@@ -4,21 +4,19 @@ using Microsoft.Extensions.Logging;
 
 namespace VocabularyCoach.App.Services;
 
-/// <summary>全局热键：Ctrl+Alt+W 捕获生词，Ctrl+Alt+T 中文转英文。</summary>
+/// <summary>全局热键：生词捕获与中文转英文，组合键可在设置中修改。</summary>
 public sealed class GlobalHotkeyService : IDisposable
 {
     private const int HotkeyId = 0x5643;
     private const int TranslateHotkeyId = 0x5644;
     private const int WmHotkey = 0x0312;
-    private const uint ModAlt = 0x0001;
-    private const uint ModControl = 0x0002;
     private const uint ModNoRepeat = 0x4000;
-    private const uint VkW = 0x57;
-    private const uint VkT = 0x54;
     private static readonly IntPtr HwndMessage = new(-3);
 
     private readonly ILogger<GlobalHotkeyService> _logger;
     private HwndSource? _source;
+    private HotkeyGesture? _captureGesture;
+    private HotkeyGesture? _translateGesture;
 
     public GlobalHotkeyService(ILogger<GlobalHotkeyService> logger)
     {
@@ -33,12 +31,20 @@ public sealed class GlobalHotkeyService : IDisposable
 
     public bool IsTranslateRegistered { get; private set; }
 
-    public bool TryRegister()
+    public bool TryRegister(string? hotkeyText)
     {
-        if (IsRegistered)
+        if (!HotkeyGesture.TryParse(hotkeyText, out var gesture))
+        {
+            _logger.LogWarning("生词捕获热键格式无效：{Hotkey}", hotkeyText);
+            return false;
+        }
+
+        if (IsRegistered && _captureGesture == gesture)
         {
             return true;
         }
+
+        Unregister();
 
         try
         {
@@ -47,12 +53,18 @@ public sealed class GlobalHotkeyService : IDisposable
             IsRegistered = RegisterHotKey(
                 _source!.Handle,
                 HotkeyId,
-                ModControl | ModAlt | ModNoRepeat,
-                VkW);
+                gesture.Modifiers | ModNoRepeat,
+                gesture.VirtualKey);
 
-            if (!IsRegistered)
+            if (IsRegistered)
             {
-                _logger.LogWarning("全局热键 Ctrl+Alt+W 注册失败，可能已被其他程序占用。");
+                _captureGesture = gesture;
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "全局热键 {Hotkey} 注册失败，可能已被其他程序占用。",
+                    gesture.DisplayText);
             }
 
             return IsRegistered;
@@ -64,12 +76,20 @@ public sealed class GlobalHotkeyService : IDisposable
         }
     }
 
-    public bool TryRegisterTranslate()
+    public bool TryRegisterTranslate(string? hotkeyText)
     {
-        if (IsTranslateRegistered)
+        if (!HotkeyGesture.TryParse(hotkeyText, out var gesture))
+        {
+            _logger.LogWarning("中文转英文热键格式无效：{Hotkey}", hotkeyText);
+            return false;
+        }
+
+        if (IsTranslateRegistered && _translateGesture == gesture)
         {
             return true;
         }
+
+        UnregisterTranslate();
 
         try
         {
@@ -78,12 +98,18 @@ public sealed class GlobalHotkeyService : IDisposable
             IsTranslateRegistered = RegisterHotKey(
                 _source!.Handle,
                 TranslateHotkeyId,
-                ModControl | ModAlt | ModNoRepeat,
-                VkT);
+                gesture.Modifiers | ModNoRepeat,
+                gesture.VirtualKey);
 
-            if (!IsTranslateRegistered)
+            if (IsTranslateRegistered)
             {
-                _logger.LogWarning("全局热键 Ctrl+Alt+T 注册失败，可能已被其他程序占用。");
+                _translateGesture = gesture;
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "全局热键 {Hotkey} 注册失败，可能已被其他程序占用。",
+                    gesture.DisplayText);
             }
 
             return IsTranslateRegistered;
@@ -103,6 +129,7 @@ public sealed class GlobalHotkeyService : IDisposable
         }
 
         IsRegistered = false;
+        _captureGesture = null;
     }
 
     public void UnregisterTranslate()
@@ -113,6 +140,7 @@ public sealed class GlobalHotkeyService : IDisposable
         }
 
         IsTranslateRegistered = false;
+        _translateGesture = null;
     }
 
     private void EnsureSource()

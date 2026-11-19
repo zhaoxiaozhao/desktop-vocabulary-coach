@@ -3,6 +3,7 @@ using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
 using VocabularyCoach.Application.Review;
 using VocabularyCoach.Application.Scheduling;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Core.Entities;
 using VocabularyCoach.Core.Enums;
@@ -54,6 +55,30 @@ public class PopupSchedulerServiceTests
             Assert.True(
                 await WaitUntilAsync(() => harness.Presenter.ShowCount > 0, TimeSpan.FromSeconds(5)),
                 "调度器未在预期时间内弹卡。");
+        }
+        finally
+        {
+            await harness.Service.StopAsync(CancellationToken.None);
+        }
+    }
+
+    [Fact]
+    public async Task ShowsSentencePractice_WhenPopupChanceIsHundred()
+    {
+        var popup = new FakeSentencePracticePopupService { Result = true };
+        var harness = CreateHarness(FastOptions(), sentencePopup: popup);
+        harness.Settings.Current.SentencePracticePopupEnabled = true;
+        harness.Settings.Current.SentencePracticePopupChancePercent = 100;
+        harness.Settings.Current.SentencePracticePopupSentenceCount = 2;
+
+        try
+        {
+            await harness.Service.StartAsync(CancellationToken.None);
+
+            Assert.True(
+                await WaitUntilAsync(() => popup.CallCount > 0, TimeSpan.FromSeconds(5)),
+                "调度器未在预期时间内打开句子练习。");
+            Assert.Equal(0, harness.Presenter.ShowCount);
         }
         finally
         {
@@ -195,7 +220,8 @@ public class PopupSchedulerServiceTests
     private static SchedulerHarness CreateHarness(
         SchedulerOptions options,
         SystemState? state = null,
-        PauseState? pauseState = null)
+        PauseState? pauseState = null,
+        FakeSentencePracticePopupService? sentencePopup = null)
     {
         var presenter = new CountingPresenter();
         var wordCardService = new WordCardService(
@@ -217,6 +243,7 @@ public class PopupSchedulerServiceTests
         };
         var rateLimiter = new PopupRateLimiter(settings, TimeProvider.System);
         var pause = pauseState ?? new PauseState(TimeProvider.System);
+        var popup = sentencePopup ?? new FakeSentencePracticePopupService();
 
         var service = new PopupSchedulerService(
             settings,
@@ -224,11 +251,12 @@ public class PopupSchedulerServiceTests
             rateLimiter,
             pause,
             wordCardService,
+            popup,
             new FakeLicenseService(),
             TimeProvider.System,
             NullLogger<PopupSchedulerService>.Instance);
 
-        return new SchedulerHarness(service, presenter, settings);
+        return new SchedulerHarness(service, presenter, settings, popup);
     }
 
     private static async Task<bool> WaitUntilAsync(Func<bool> condition, TimeSpan timeout)
@@ -250,7 +278,23 @@ public class PopupSchedulerServiceTests
     private sealed record SchedulerHarness(
         PopupSchedulerService Service,
         CountingPresenter Presenter,
-        FakeSettingsService Settings);
+        FakeSettingsService Settings,
+        FakeSentencePracticePopupService SentencePopup);
+
+    private sealed class FakeSentencePracticePopupService : ISentencePracticePopupService
+    {
+        public bool Result { get; set; }
+
+        public int CallCount { get; private set; }
+
+        public Task<bool> TryShowAsync(
+            int sentenceCount,
+            CancellationToken cancellationToken = default)
+        {
+            CallCount++;
+            return Task.FromResult(Result);
+        }
+    }
 
     private sealed class CountingPresenter : IWordPopupPresenter
     {

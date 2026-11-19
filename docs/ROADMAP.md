@@ -244,7 +244,7 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 0.9.0 增量：30 天全功能试用、离线 ECDSA 激活码、自动检查更新与静默升级、看义选词（反向选择题）、句子填空与语法练习。
 - 静态官网：`site/`（Cloudflare Pages，无需构建），安装包走 GitHub Releases + 阿里云 OSS 镜像；
   `tools/deploy-site.ps1` 校验下载地址与 SHA256 后一键部署。
-- 全解决方案 243 个自动化测试通过（Core 33 + Application 165 + Infrastructure 45）。
+- 全解决方案 244 个自动化测试通过（Core 33 + Application 166 + Infrastructure 45）。
 - 安装包：`artifacts/installer/DesktopVocabularyCoach-Setup-0.9.0.exe`（自包含 win-x64）。
 - 数据目录：`%LocalAppData%\DesktopVocabularyCoach`（数据库、日志、DPAPI Key、试用/许可证）。
 
@@ -283,6 +283,11 @@ Sprint 6 AI 增强 + 安装包 + 兼容性长跑
 - 只发送当前选中的文字，不安装键盘钩子、不后台读取其他应用内容。
 - AI 关闭、无可用连接、超时或返回空内容时不替换原文，并在托盘中提示原因。
 - 新增译文清理、中文检测、AI 翻译结果解析与设置持久化测试。
+- 生词捕获与中文转英文热键改为可配置：设置页点击热键框后直接按新组合键；
+  重复或格式无效时阻止保存。
+- 主窗口右上角新增设置齿轮按钮。
+- 句子练习作答方式可配置为「选择 / 手动输入 / 混合」，混合模式逐题交替，不再手动切换。
+- 随机弹卡队列支持按概率插入句子练习，可配置概率与每次句数。
 
 ### 0.8.x 增量：生词捕获与词库扩充
 

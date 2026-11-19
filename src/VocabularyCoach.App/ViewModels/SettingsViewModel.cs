@@ -71,6 +71,13 @@ public sealed partial class SettingsViewModel : ObservableObject
             new(InteractionMode.Mixed, "混合：自我评估 + 正/反选择"),
         ];
 
+        SentenceAnswerModes =
+        [
+            new(SentenceAnswerMode.Choice, "选择：从 A–D 中选答案"),
+            new(SentenceAnswerMode.Typing, "手动输入：拼写完整答案"),
+            new(SentenceAnswerMode.Mixed, "混合：选择和输入交替出现"),
+        ];
+
         Themes =
         [
             new(CardTheme.Light, "浅色"),
@@ -95,6 +102,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     public IReadOnlyList<EnumOption<DifficultyMode>> DifficultyModes { get; }
 
     public IReadOnlyList<EnumOption<InteractionMode>> InteractionModes { get; }
+
+    public IReadOnlyList<EnumOption<SentenceAnswerMode>> SentenceAnswerModes { get; }
+
+    public IReadOnlyList<int> SentencePopupChances { get; } = [10, 20, 30, 50];
+
+    public IReadOnlyList<int> SentencePopupCounts { get; } = [1, 2, 3, 5];
 
     public IReadOnlyList<EnumOption<CardTheme>> Themes { get; }
 
@@ -145,6 +158,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _captureEnabled;
 
     [ObservableProperty]
+    private string _captureHotkey = "Ctrl+Alt+W";
+
+    [ObservableProperty]
     private bool _captureSilentAdd;
 
     [ObservableProperty]
@@ -154,7 +170,22 @@ public sealed partial class SettingsViewModel : ObservableObject
     private bool _chineseToEnglishEnabled;
 
     [ObservableProperty]
+    private string _translateHotkey = "Ctrl+Alt+T";
+
+    [ObservableProperty]
     private bool _chineseToEnglishPreviewEnabled;
+
+    [ObservableProperty]
+    private SentenceAnswerMode _sentenceAnswerMode = SentenceAnswerMode.Mixed;
+
+    [ObservableProperty]
+    private bool _sentencePracticePopupEnabled = true;
+
+    [ObservableProperty]
+    private int _sentencePracticePopupChancePercent = 20;
+
+    [ObservableProperty]
+    private int _sentencePracticePopupSentenceCount = 1;
 
     [ObservableProperty]
     private bool _startWithWindows;
@@ -254,10 +285,20 @@ public sealed partial class SettingsViewModel : ObservableObject
         DifficultyMode = settings.DifficultyMode;
         InteractionMode = settings.InteractionMode;
         CaptureEnabled = settings.CaptureEnabled;
+        CaptureHotkey = string.IsNullOrWhiteSpace(settings.CaptureHotkey)
+            ? "Ctrl+Alt+W"
+            : settings.CaptureHotkey;
         CaptureSilentAdd = settings.CaptureSilentAdd;
         CaptureShowNotification = settings.CaptureShowNotification;
         ChineseToEnglishEnabled = settings.ChineseToEnglishEnabled;
+        TranslateHotkey = string.IsNullOrWhiteSpace(settings.TranslateHotkey)
+            ? "Ctrl+Alt+T"
+            : settings.TranslateHotkey;
         ChineseToEnglishPreviewEnabled = settings.ChineseToEnglishPreviewEnabled;
+        SentenceAnswerMode = settings.SentenceAnswerMode;
+        SentencePracticePopupEnabled = settings.SentencePracticePopupEnabled;
+        SentencePracticePopupChancePercent = settings.SentencePracticePopupChancePercent;
+        SentencePracticePopupSentenceCount = settings.SentencePracticePopupSentenceCount;
         StartWithWindows = settings.StartWithWindows;
         ManualDifficulty = settings.ManualDifficulty;
         NewWordRatio = settings.NewWordRatio;
@@ -444,6 +485,39 @@ public sealed partial class SettingsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanSave))]
     private async Task SaveAsync()
     {
+        HotkeyGesture? capture = null;
+        HotkeyGesture? translate = null;
+
+        if (CaptureEnabled)
+        {
+            if (!HotkeyGesture.TryParse(CaptureHotkey, out var captureGesture))
+            {
+                StatusMessage = "生词捕获热键格式无效，请点击输入框后重新按下组合键。";
+                return;
+            }
+
+            capture = captureGesture;
+            CaptureHotkey = captureGesture.DisplayText;
+        }
+
+        if (ChineseToEnglishEnabled)
+        {
+            if (!HotkeyGesture.TryParse(TranslateHotkey, out var translateGesture))
+            {
+                StatusMessage = "中文转英文热键格式无效，请点击输入框后重新按下组合键。";
+                return;
+            }
+
+            translate = translateGesture;
+            TranslateHotkey = translateGesture.DisplayText;
+        }
+
+        if (capture is { } c && translate is { } t && c.DisplayText == t.DisplayText)
+        {
+            StatusMessage = "两个功能不能使用同一个热键，请换一个组合键。";
+            return;
+        }
+
         IsBusy = true;
         var keySaved = true;
 
@@ -479,10 +553,16 @@ public sealed partial class SettingsViewModel : ObservableObject
                 DifficultyMode = DifficultyMode,
                 InteractionMode = InteractionMode,
                 CaptureEnabled = CaptureEnabled,
+                CaptureHotkey = CaptureHotkey,
                 CaptureSilentAdd = CaptureSilentAdd,
                 CaptureShowNotification = CaptureShowNotification,
                 ChineseToEnglishEnabled = ChineseToEnglishEnabled,
+                TranslateHotkey = TranslateHotkey,
                 ChineseToEnglishPreviewEnabled = ChineseToEnglishPreviewEnabled,
+                SentenceAnswerMode = SentenceAnswerMode,
+                SentencePracticePopupEnabled = SentencePracticePopupEnabled,
+                SentencePracticePopupChancePercent = SentencePracticePopupChancePercent,
+                SentencePracticePopupSentenceCount = SentencePracticePopupSentenceCount,
                 StartWithWindows = StartWithWindows,
                 ManualDifficulty = ManualDifficulty,
                 NewWordRatio = NewWordRatio,

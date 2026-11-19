@@ -13,6 +13,7 @@ using VocabularyCoach.Application;
 using VocabularyCoach.Application.Abstractions;
 using VocabularyCoach.Application.Learning;
 using VocabularyCoach.Application.Licensing;
+using VocabularyCoach.Application.SentencePractice;
 using VocabularyCoach.Application.Settings;
 using VocabularyCoach.Application.Updates;
 using VocabularyCoach.Core.Enums;
@@ -225,6 +226,7 @@ public partial class App : System.Windows.Application
         builder.Services.AddSingleton<GlobalHotkeyService>();
         builder.Services.AddSingleton<SelectionReplacer>();
         builder.Services.AddSingleton<SelectionTranslationCoordinator>();
+        builder.Services.AddSingleton<ISentencePracticePopupService, WpfSentencePracticePopupService>();
         builder.Services.AddSingleton<CaptureCoordinator>();
         builder.Services.AddSingleton<WpfWordPopupPresenter>();
         builder.Services.AddSingleton<IWordPopupPresenter>(
@@ -334,26 +336,42 @@ public partial class App : System.Windows.Application
         {
             _hotkey.Unregister();
         }
-        else if (!_hotkey.TryRegister() && !_hotkeyWarningShown)
+        else
         {
-            _hotkeyWarningShown = true;
-            _logger?.LogWarning("全局热键 Ctrl+Alt+W 注册失败。");
-            _trayIcon?.ShowInfo(
-                "快捷键不可用",
-                "Ctrl+Alt+W 可能已被其他程序占用，可在设置中关闭生词捕获热键。");
+            var registered = _hotkey.TryRegister(_settingsService.Current.CaptureHotkey);
+            if (registered)
+            {
+                _hotkeyWarningShown = false;
+            }
+            else if (!_hotkeyWarningShown)
+            {
+                _hotkeyWarningShown = true;
+                _logger?.LogWarning("全局热键注册失败。");
+                _trayIcon?.ShowInfo(
+                    "快捷键不可用",
+                    $"{_settingsService.Current.CaptureHotkey} 可能已被其他程序占用，可在设置中更换热键。");
+            }
         }
 
         if (!_settingsService.Current.ChineseToEnglishEnabled)
         {
             _hotkey.UnregisterTranslate();
         }
-        else if (!_hotkey.TryRegisterTranslate() && !_translateHotkeyWarningShown)
+        else
         {
-            _translateHotkeyWarningShown = true;
-            _logger?.LogWarning("全局热键 Ctrl+Alt+T 注册失败。");
-            _trayIcon?.ShowInfo(
-                "中文转英文快捷键不可用",
-                "Ctrl+Alt+T 可能已被其他程序占用，可在设置中关闭中文转英文。");
+            var registered = _hotkey.TryRegisterTranslate(_settingsService.Current.TranslateHotkey);
+            if (registered)
+            {
+                _translateHotkeyWarningShown = false;
+            }
+            else if (!_translateHotkeyWarningShown)
+            {
+                _translateHotkeyWarningShown = true;
+                _logger?.LogWarning("中文转英文热键注册失败。");
+                _trayIcon?.ShowInfo(
+                    "中文转英文快捷键不可用",
+                    $"{_settingsService.Current.TranslateHotkey} 可能已被其他程序占用，可在设置中更换热键。");
+            }
         }
     }
 
